@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Session Guard: redirect to login if not authenticated -->
+    <script>
+        if (!sessionStorage.getItem('bhaala_logged_in')) {
+            window.location.replace('login.html');
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhaala | Contact</title>
+    <meta name="description" content="Send a message to Bhaalavishvanathan — AI & Data Science Enthusiast. Get in touch for collaborations, opportunities, or just to say hello.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Bhaala.css">
+
+    <style>
+        /* ──────────────────────────────────────────────
+           Contact Page — Scoped Styles
+           (design tokens inherited from Bhaala.css)
+        ────────────────────────────────────────────── */
+
+        /* ── Page Hero ── */
+        .contact-page-hero {
+            padding: 130px 8% 60px;
+            text-align: center;
+            background: url('Images/Background image 7.jpg') no-repeat center / cover;
+            position: relative;
+            overflow: hidden;
+        }
+        .contact-page-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.88) 0%, rgba(108,11,11,0.6) 100%);
+        }
+        .contact-page-hero > * { position: relative; z-index: 1; }
+
+        .contact-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(248,19,19,0.15);
+            border: 1px solid rgba(248,19,19,0.35);
+            padding: 8px 22px;
+            border-radius: 50px;
+            font-size: 12px;
+            color: #ffd369;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+
+        .contact-page-hero h1 {
+            font-size: 54px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #ffffff, #f25050);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 14px;
+            line-height: 1.15;
+        }
+
+        .contact-page-hero p {
+            font-size: 17px;
+            color: rgba(255,255,255,0.65);
+            max-width: 540px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* ── Layout ── */
+        .contact-page-body {
+            padding: 70px 8% 100px;
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 50px;
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        /* ── Info Panel (left) ── */
+        .contact-info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .contact-info-panel h2 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.35;
+        }
+
+        .contact-info-panel h2 span {
+            background: linear-gradient(90deg, #f25050, #ffd369);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .contact-info-panel > p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.8;
+        }
+
+        /* Info Chips */
+        .info-chips {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .info-chip-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 14px;
+            padding: 16px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .info-chip-row:hover {
+            background: rgba(248,19,19,0.08);
+            border-color: rgba(248,19,19,0.3);
+            transform: translateX(4px);
+        }
+
+        .info-chip-icon {
+            font-size: 22px;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .info-chip-text .chip-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 2px;
+        }
+
+        .info-chip-text .chip-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .info-chip-text .chip-value a {
+            color: #ffd369;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .info-chip-text .chip-value a:hover { color: #f25050; }
+
+        /* Social Row */
+        .contact-socials {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .contact-social-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 40px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .contact-social-btn:hover {
+            background: rgba(248,19,19,0.15);
+            border-color: rgba(248,19,19,0.4);
+            color: #ffd369;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(248,19,19,0.25);
+        }
+
+        /* ── Form Card (right) ── */
+        .contact-form-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,80,80,0.15);
+            border-radius: 24px;
+            padding: 44px 42px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: 0 10px 50px rgba(0,0,0,0.45);
+            animation: contactCardIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        @keyframes contactCardIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-card-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .form-card-subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 32px;
+        }
+
+        /* Form grid — 2 cols for Name + Email */
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .cf-group {
+            margin-bottom: 20px;
+        }
+
+        .cf-group label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .cf-group label span.req {
+            color: #f25050;
+            margin-left: 2px;
+        }
+
+        .cf-group input,
+        .cf-group textarea,
+        .cf-group select {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 13px 16px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            resize: none;
+        }
+
+        .cf-group input::placeholder,
+        .cf-group textarea::placeholder {
+            color: rgba(255,255,255,0.22);
+        }
+
+        .cf-group input:focus,
+        .cf-group textarea:focus {
+            border-color: rgba(242, 80, 80, 0.55);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 3px rgba(242,80,80,0.1);
+        }
+
+        /* Character counter */
+        .char-counter {
+            text-align: right;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 5px;
+            transition: color 0.3s;
+        }
+        .char-counter.warn { color: #ffd369; }
+        .char-counter.over { color: #f25050; }
+
+        /* Honeypot — visually hidden */
+        .hp-field {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+            tab-index: -1;
+        }
+
+        /* ── Submit Button ── */
+        .cf-submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #f25050 0%, #dd2476 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 22px rgba(242,80,80,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .cf-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(242,80,80,0.5);
+        }
+
+        .cf-submit-btn:active { transform: translateY(0); }
+
+        .cf-submit-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Spinner ── */
+        .cf-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: cfSpin 0.7s linear infinite;
+            display: none;
+        }
+
+        @keyframes cfSpin { to { transform: rotate(360deg); } }
+
+        /* ── Toast Notification ── */
+        .cf-toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 18px 22px;
+            border-radius: 16px;
+            max-width: 380px;
+            box-shadow: 0 12px 50px rgba(0,0,0,0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+            pointer-events: none;
+        }
+
+        .cf-toast.show {
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .cf-toast.success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16,185,129,0.4);
+        }
+
+        .cf-toast.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239,68,68,0.4);
+        }
+
+        .cf-toast.warning {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245,158,11,0.4);
+        }
+
+        .toast-icon { font-size: 22px; margin-top: 1px; }
+
+        .toast-body { flex: 1; }
+
+        .toast-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+
+        .toast-msg {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .toast-close:hover { color: #fff; }
+
+        /* ── Inline form error hints ── */
+        .field-error {
+            font-size: 12px;
+            color: #f87171;
+            margin-top: 5px;
+            display: none;
+            animation: errIn 0.2s ease;
+        }
+        .field-error.show { display: block; }
+        @keyframes errIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .cf-group input.invalid,
+        .cf-group textarea.invalid {
+            border-color: rgba(239,68,68,0.6);
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+        }
+
+        .cf-group input.valid,
+        .cf-group textarea.valid {
+            border-color: rgba(16,185,129,0.5);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .contact-page-body {
+                grid-template-columns: 1fr;
+                padding: 50px 6% 80px;
+            }
+
+            .contact-page-hero h1 { font-size: 38px; }
+            .contact-form-card { padding: 32px 26px; }
+        }
+
+        @media (max-width: 560px) {
+            .form-row-2 { grid-template-columns: 1fr; }
+            .contact-page-hero h1 { font-size: 32px; }
+            .cf-toast { left: 16px; right: 16px; top: 16px; max-width: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════ NAVIGATION ═══════════════ -->
+    <nav class="navbar">
+        <a href="Bhaala.html" class="navbar-brand">BV</a>
+        <ul>
+            <li><a href="Bhaala.html">Home</a></li>
+            <li><a href="About Me.html">About Me</a></li>
+            <li><a href="school.html">My School</a></li>
+            <li><a href="college.html">My College</a></li>
+            <li><a href="contact.html" class="active">Contact</a></li>
+            <li><a href="login.html" class="nav-login-btn">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <header class="contact-page-hero animate-fade-up">
+        <div class="contact-hero-badge">✉️ Get In Touch</div>
+        <h1>Contact Me</h1>
+        <p>Have a project in mind, an opportunity, or just want to say hello?<br>
+           Drop me a message — I'd love to hear from you.</p>
+    </header>
+
+    <!-- ═══════════════ BODY ═══════════════ -->
+    <main class="contact-page-body">
+
+        <!-- ── Left: Info Panel ── -->
+        <aside class="contact-info-panel animate-fade-up">
+            <h2>Let's start a<br><span>conversation 💬</span></h2>
+            <p>
+                I'm always open to new opportunities, collaborations, and interesting conversations
+                around AI, Data Science, and technology.
+            </p>
+
+            <div class="info-chips">
+                <div class="info-chip-row">
+                    <div class="info-chip-icon">📧</div>
+                    <div class="info-chip-text">
+                        <div class="chip-label">Email</div>
+                        <div class="chip-value">
+                            <a href="mailto:bhaalavishvanathan17@gmail.com">bhaalavishvanathan17@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-chip-row">
+                    <div class="info-chip-icon">📞</div>
+                    <div class="info-chip-text">
+                        <div class="chip-label">Phone</div>
+                        <div class="chip-value"><a href="tel:+919361000742">+91 93610 00742</a></div>
+                    </div>
+                </div>
+                <div class="info-chip-row">
+                    <div class="info-chip-icon">📍</div>
+                    <div class="info-chip-text">
+                        <div class="chip-label">Location</div>
+                        <div class="chip-value">Tamil Nadu, India</div>
+                    </div>
+                </div>
+                <div class="info-chip-row">
+                    <div class="info-chip-icon">⏱️</div>
+                    <div class="info-chip-text">
+                        <div class="chip-label">Response Time</div>
+                        <div class="chip-value">Usually within 24 hours</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Links -->
+            <div class="contact-socials">
+                <a href="https://www.linkedin.com/in/bhaalavishvanathan-c-59576a312/" target="_blank" rel="noopener" class="contact-social-btn">
+                    💼 LinkedIn
+                </a>
+                <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" rel="noopener" class="contact-social-btn">
+                    🐙 GitHub
+                </a>
+                <a href="https://wa.me/919361000742" target="_blank" rel="noopener" class="contact-social-btn">
+                    💬 WhatsApp
+                </a>
+                <a href="https://www.instagram.com/_bhaala_/" target="_blank" rel="noopener" class="contact-social-btn">
+                    📸 Instagram
+                </a>
+            </div>
+        </aside>
+
+        <!-- ── Right: Contact Form ── -->
+        <section class="contact-form-card">
+            <h2 class="form-card-title">Send a Message</h2>
+            <p class="form-card-subtitle">All fields marked <span style="color:#f25050">*</span> are required.</p>
+
+            <form id="contact-form" novalidate autocomplete="off">
+
+                <!-- Name + Email row -->
+                <div class="form-row-2">
+                    <div class="cf-group">
+                        <label for="cf-name">Full Name <span class="req">*</span></label>
+                        <input type="text" id="cf-name" name="name"
+                               placeholder="Your full name"
+                               maxlength="100" autocomplete="name" required>
+                        <div class="field-error" id="err-name"></div>
+                    </div>
+                    <div class="cf-group">
+                        <label for="cf-email">Email Address <span class="req">*</span></label>
+                        <input type="email" id="cf-email" name="email"
+                               placeholder="you@example.com"
+                               maxlength="150" autocomplete="email" required>
+                        <div class="field-error" id="err-email"></div>
+                    </div>
+                </div>
+
+                <!-- Subject -->
+                <div class="cf-group">
+                    <label for="cf-subject">Subject <span class="req">*</span></label>
+                    <input type="text" id="cf-subject" name="subject"
+                           placeholder="What's this about?"
+                           maxlength="150" required>
+                    <div class="field-error" id="err-subject"></div>
+                </div>
+
+                <!-- Message -->
+                <div class="cf-group">
+                    <label for="cf-message">Message <span class="req">*</span></label>
+                    <textarea id="cf-message" name="message" rows="6"
+                              placeholder="Write your message here…"
+                              maxlength="2000" required></textarea>
+                    <div class="char-counter" id="char-counter">0 / 2000</div>
+                    <div class="field-error" id="err-message"></div>
+                </div>
+
+                <!-- Honeypot — anti-spam trap (hidden from real users) -->
+                <div class="hp-field" aria-hidden="true">
+                    <label for="cf-hp">Leave this blank</label>
+                    <input type="text" id="cf-hp" name="_hp" tabindex="-1" autocomplete="off">
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="cf-submit-btn" id="cf-submit-btn">
+                    <div class="cf-spinner" id="cf-spinner"></div>
+                    <span id="cf-btn-label">Send Message 🚀</span>
+                </button>
+
+            </form>
+        </section>
+
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="footer">
+        © 2026 <span>Bhaalavishvanathan</span> — Built with passion &amp; purpose.
+    </footer>
+
+    <!-- ── Toast Notification ── -->
+    <div class="cf-toast" id="cf-toast" role="alert" aria-live="polite">
+        <div class="toast-icon" id="toast-icon"></div>
+        <div class="toast-body">
+            <div class="toast-title" id="toast-title"></div>
+            <div class="toast-msg"   id="toast-msg"></div>
+        </div>
+        <button class="toast-close" id="toast-close" aria-label="Dismiss notification">×</button>
+    </div>
+
+    <script>
+    /* ══════════════════════════════════════════════
+       Contact Form — Client-side Logic
+    ══════════════════════════════════════════════ */
+
+    (function () {
+        'use strict';
+
+        // ── DOM refs ──────────────────────────────
+        const form      = document.getElementById('contact-form');
+        const nameEl    = document.getElementById('cf-name');
+        const emailEl   = document.getElementById('cf-email');
+        const subjectEl = document.getElementById('cf-subject');
+        const msgEl     = document.getElementById('cf-message');
+        const hpEl      = document.getElementById('cf-hp');
+        const submitBtn = document.getElementById('cf-submit-btn');
+        const spinner   = document.getElementById('cf-spinner');
+        const btnLabel  = document.getElementById('cf-btn-label');
+        const counter   = document.getElementById('char-counter');
+        const toast     = document.getElementById('cf-toast');
+
+        let toastTimer = null;
+
+        // ── Character counter ─────────────────────
+        msgEl.addEventListener('input', () => {
+            const len = msgEl.value.length;
+            const max = 2000;
+            counter.textContent = `${len} / ${max}`;
+            counter.className = 'char-counter' +
+                (len > max * 0.9 && len <= max ? ' warn' : '') +
+                (len > max ? ' over' : '');
+        });
+
+        // ── Real-time field validation ────────────
+        [nameEl, emailEl, subjectEl, msgEl].forEach(el => {
+            el.addEventListener('blur', () => validateField(el));
+            el.addEventListener('input', () => {
+                if (el.classList.contains('invalid')) validateField(el);
+            });
+        });
+
+        function validateField(el) {
+            const val = el.value.trim();
+            const errId = 'err-' + el.id.replace('cf-', '');
+            const errEl = document.getElementById(errId);
+
+            let msg = '';
+
+            if (el === nameEl) {
+                if (!val)         msg = 'Full name is required.';
+                else if (val.length < 2) msg = 'Name must be at least 2 characters.';
+            } else if (el === emailEl) {
+                if (!val)                        msg = 'Email address is required.';
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) msg = 'Please enter a valid email address.';
+            } else if (el === subjectEl) {
+                if (!val)          msg = 'Subject is required.';
+                else if (val.length < 3) msg = 'Subject must be at least 3 characters.';
+            } else if (el === msgEl) {
+                if (!val)           msg = 'Message is required.';
+                else if (val.length < 10) msg = 'Message must be at least 10 characters.';
+            }
+
+            if (msg) {
+                el.classList.add('invalid');
+                el.classList.remove('valid');
+                if (errEl) { errEl.textContent = msg; errEl.classList.add('show'); }
+                return false;
+            } else {
+                el.classList.remove('invalid');
+                el.classList.add('valid');
+                if (errEl) { errEl.textContent = ''; errEl.classList.remove('show'); }
+                return true;
+            }
+        }
+
+        // ── Toast helper ──────────────────────────
+        function showToast(type, title, msg, duration = 6000) {
+            const icons = { success: '✅', error: '❌', warning: '⚠️' };
+            document.getElementById('toast-icon').textContent  = icons[type] || '📢';
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-msg').textContent   = msg;
+
+            toast.className = `cf-toast ${type} show`;
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(hideToast, duration);
+        }
+
+        function hideToast() {
+            toast.classList.remove('show');
+        }
+
+        document.getElementById('toast-close').addEventListener('click', hideToast);
+
+        // ── Loading state ─────────────────────────
+        function setLoading(loading) {
+            submitBtn.disabled = loading;
+            spinner.style.display = loading ? 'block' : 'none';
+            btnLabel.textContent  = loading ? 'Sending…' : 'Send Message 🚀';
+        }
+
+        // ── Form submit ───────────────────────────
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate all fields
+            const valid = [nameEl, emailEl, subjectEl, msgEl]
+                .map(el => validateField(el))
+                .every(Boolean);
+
+            if (!valid) {
+                showToast('warning', 'Incomplete Form', 'Please fix the highlighted fields before sending.');
+                return;
+            }
+
+            setLoading(true);
+
+            const payload = {
+                name    : nameEl.value.trim(),
+                email   : emailEl.value.trim(),
+                subject : subjectEl.value.trim(),
+                message : msgEl.value.trim(),
+                _hp     : hpEl.value     // honeypot — must be empty
+            };
+
+            try {
+                const res  = await fetch('/contact', {
+                    method  : 'POST',
+                    headers : { 'Content-Type': 'application/json' },
+                    body    : JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('success', 'Message Sent! 🎉', data.message, 8000);
+                    form.reset();
+                    counter.textContent = '0 / 2000';
+                    counter.className   = 'char-counter';
+                    [nameEl, emailEl, subjectEl, msgEl].forEach(el => el.classList.remove('valid','invalid'));
+                } else if (res.status === 429) {
+                    showToast('warning', 'Too Many Requests', data.message, 10000);
+                } else {
+                    showToast('error', 'Failed to Send', data.message, 8000);
+                }
+
+            } catch (err) {
+                showToast('error', 'Network Error', 'Could not reach the server. Please try again or email directly.', 8000);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+    })();
+    </script>
+
+</body>
+</html>

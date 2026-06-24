@@ -3,413 +3,444 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bhaala | Login & Register</title>
-    <meta name="description" content="Login or Register to access Bhaala Vishvanathan's portfolio.">
+    <title>Bhaala | Login</title>
+    <meta name="description" content="Login or Register to access Bhaala Vishvanathan's Portfolio.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        /* ──────────── RESET & BASE ──────────── */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ── Reset & Base ── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow-x: hidden;
+            background: #0a0a0a;
+            overflow: hidden;
             position: relative;
         }
 
-        /* ──────────── VIDEO BACKGROUND ──────────── */
-        .video-bg {
+        /* ── Background Video ── */
+        #bg-video {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             object-fit: cover;
-            z-index: -2;
+            z-index: 0;
+            opacity: 0.25;
+            filter: brightness(0.5) saturate(1.4);
         }
 
-        .overlay {
+        /* ── Animated gradient overlay ── */
+        .bg-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.65);
-            z-index: -1;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(10,10,10,0.88) 0%,
+                rgba(26,5,5,0.82) 50%,
+                rgba(10,10,10,0.90) 100%
+            );
+            z-index: 1;
         }
 
-        /* ──────────── MINI NAVBAR ──────────── */
-        .mini-nav {
+        /* ── Floating blobs ── */
+        .blob {
             position: fixed;
-            top: 0; left: 0;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            animation: blobFloat 12s ease-in-out infinite alternate;
+            z-index: 1;
+        }
+        .blob-1 { width: 420px; height: 420px; background: #ff512f; top: -80px; left: -80px; animation-duration: 10s; }
+        .blob-2 { width: 360px; height: 360px; background: #dd2476; bottom: -80px; right: -80px; animation-duration: 14s; }
+        .blob-3 { width: 280px; height: 280px; background: #ffd369; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-duration: 16s; }
+
+        @keyframes blobFloat {
+            from { transform: translateY(0) scale(1); }
+            to   { transform: translateY(30px) scale(1.06); }
+        }
+
+        /* ── Card ── */
+        .card-wrapper {
+            position: relative;
+            z-index: 10;
             width: 100%;
-            padding: 16px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,80,80,0.2);
-            z-index: 100;
+            max-width: 440px;
+            padding: 20px;
         }
 
-        .mini-nav .brand {
-            font-size: 20px;
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 80, 80, 0.18);
+            border-radius: 24px;
+            padding: 44px 40px 40px;
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            box-shadow:
+                0 8px 40px rgba(0,0,0,0.55),
+                0 0 0 1px rgba(255,255,255,0.04) inset;
+            animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(28px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── Logo / Brand ── */
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand-logo {
+            font-size: 38px;
             font-weight: 800;
             background: linear-gradient(90deg, #f25050, #ffd369);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-decoration: none;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            display: block;
+            margin-bottom: 4px;
         }
 
-        .mini-nav a.back {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .mini-nav a.back:hover { color: #ffd369; }
-
-        /* ──────────── CARD WRAPPER ──────────── */
-        .auth-wrapper {
-            width: 100%;
-            max-width: 440px;
-            padding: 20px 16px;
-            margin-top: 80px;
-        }
-
-        .auth-card {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 22px;
-            padding: 40px 36px;
-            box-shadow: 0 20px 80px rgba(0,0,0,0.5);
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ──────────── LOGO / TITLE ──────────── */
-        .auth-logo {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .auth-logo .emoji { font-size: 40px; display: block; margin-bottom: 8px; }
-
-        .auth-logo h1 {
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(90deg, #ffffff, #ffd369);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .auth-logo p {
+        .brand-tagline {
             font-size: 13px;
-            color: rgba(255,255,255,0.55);
-            margin-top: 4px;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.5px;
         }
 
-        /* ──────────── TABS ──────────── */
-        .tab-row {
+        /* ── Tab Switcher ── */
+        .tabs {
             display: flex;
-            background: rgba(0,0,0,0.35);
+            background: rgba(255,255,255,0.05);
             border-radius: 12px;
             padding: 4px;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 10px;
             border: none;
             background: transparent;
-            color: rgba(255,255,255,0.55);
+            color: rgba(255,255,255,0.5);
+            font-family: inherit;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 600;
+            padding: 10px 0;
             border-radius: 9px;
             cursor: pointer;
-            transition: 0.3s;
-            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            letter-spacing: 0.4px;
         }
 
         .tab-btn.active {
-            background: linear-gradient(135deg, #f81313, #c0030e);
-            color: white;
-            box-shadow: 0 4px 18px rgba(248,19,19,0.4);
+            background: linear-gradient(135deg, #f25050, #dd2476);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(242,80,80,0.35);
         }
 
-        /* ──────────── FORM PANELS ──────────── */
-        .form-panel { display: none; }
-        .form-panel.active { display: block; animation: fadeIn 0.35s ease; }
+        /* ── Forms ── */
+        .form-section { display: none; }
+        .form-section.active { display: block; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
-
-        /* ──────────── FORM FIELDS ──────────── */
-        .field {
+        .form-group {
             margin-bottom: 18px;
         }
 
-        .field label {
+        .form-group label {
             display: block;
-            font-size: 12px;
-            font-weight: 700;
-            color: rgba(255,255,255,0.65);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 0.8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
             margin-bottom: 7px;
         }
 
-        .field input {
+        .form-group input {
             width: 100%;
-            padding: 13px 16px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 10px;
-            color: white;
+            padding: 13px 16px;
+            color: #fff;
+            font-family: inherit;
             font-size: 15px;
             outline: none;
-            transition: 0.3s;
-            font-family: inherit;
+            transition: all 0.3s ease;
         }
 
-        .field input::placeholder { color: rgba(255,255,255,0.3); }
-
-        .field input:focus {
-            border-color: rgba(248,19,19,0.6);
-            background: rgba(255,255,255,0.1);
-            box-shadow: 0 0 15px rgba(248,19,19,0.2);
+        .form-group input::placeholder {
+            color: rgba(255,255,255,0.25);
         }
 
-        /* ──────────── SUBMIT BUTTON ──────────── */
-        .submit-btn {
+        .form-group input:focus {
+            border-color: rgba(242, 80, 80, 0.6);
+            background: rgba(255,255,255,0.09);
+            box-shadow: 0 0 0 3px rgba(242,80,80,0.12);
+        }
+
+        /* ── Submit Button ── */
+        .btn-submit {
             width: 100%;
             padding: 14px;
+            background: linear-gradient(135deg, #f25050 0%, #dd2476 100%);
+            color: #fff;
             border: none;
             border-radius: 12px;
-            background: linear-gradient(135deg, #f81313, #c0030e);
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
             font-family: inherit;
-            cursor: pointer;
-            transition: 0.35s;
-            margin-top: 6px;
+            font-size: 15px;
+            font-weight: 700;
             letter-spacing: 0.5px;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(242,80,80,0.35);
+            position: relative;
+            overflow: hidden;
         }
 
-        .submit-btn:hover {
-            background: linear-gradient(135deg, #0072ff, #00c6ff);
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0);
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0,114,255,0.4);
+            box-shadow: 0 8px 28px rgba(242,80,80,0.5);
         }
 
-        .submit-btn:active { transform: scale(0.98); }
+        .btn-submit:active { transform: translateY(0); }
 
-        .submit-btn:disabled {
+        .btn-submit:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* ──────────── MESSAGE BOX ──────────── */
+        /* ── Message Box ── */
         .msg-box {
-            display: none;
-            margin-top: 16px;
-            padding: 12px 16px;
             border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
+            padding: 12px 16px;
+            font-size: 13.5px;
+            font-weight: 500;
             text-align: center;
+            margin-top: 16px;
+            display: none;
             animation: fadeIn 0.3s ease;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         .msg-box.success {
-            background: rgba(0,200,100,0.15);
-            border: 1px solid rgba(0,200,100,0.4);
-            color: #4fffb0;
+            display: block;
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52,211,153,0.35);
+            color: #6ee7b7;
         }
 
         .msg-box.error {
-            background: rgba(248,19,19,0.15);
-            border: 1px solid rgba(248,19,19,0.4);
-            color: #ff7070;
+            display: block;
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.35);
+            color: #fca5a5;
         }
 
-        /* ──────────── FOOTER TEXT ──────────── */
-        .auth-footer {
+        /* ── Divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0 20px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+        .divider span {
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            white-space: nowrap;
+        }
+
+        /* ── Footer link ── */
+        .back-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 22px;
             font-size: 13px;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255,255,255,0.35);
         }
 
-        .auth-footer span { color: #f25050; }
+        .back-link a {
+            color: #f87171;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
 
-        /* ──────────── LOADING SPINNER ──────────── */
+        .back-link a:hover { color: #fca5a5; }
+
+        /* ── Spinner ── */
         .spinner {
             display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.4);
-            border-top-color: white;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
-            margin-right: 8px;
             vertical-align: middle;
+            margin-right: 8px;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px rgba(30,10,10,0.9) inset !important;
-            -webkit-text-fill-color: white !important;
+        /* ── Responsive ── */
+        @media (max-width: 480px) {
+            .card { padding: 32px 24px 28px; }
+            .card-wrapper { padding: 16px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ─── VIDEO BACKGROUND ─── -->
-    <video autoplay muted loop playsinline class="video-bg">
+    <!-- Background Video -->
+    <video id="bg-video" autoplay muted loop playsinline>
         <source src="Login background video 1.mp4" type="video/mp4">
     </video>
-    <div class="overlay"></div>
 
-    <!-- ─── MINI NAV ─── -->
-    <nav class="mini-nav">
-        <a href="Bhaala.html" class="brand">BV</a>
-        <a href="Bhaala.html" class="back">← Back to Home</a>
-    </nav>
+    <!-- Overlays -->
+    <div class="bg-overlay"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-    <!-- ─── AUTH CARD ─── -->
-    <div class="auth-wrapper">
-        <div class="auth-card">
+    <!-- Card -->
+    <div class="card-wrapper">
+        <div class="card">
 
-            <!-- Logo -->
-            <div class="auth-logo">
-                <span class="emoji">🙏</span>
-                <h1>Welcome</h1>
-                <p>Login or create an account to continue</p>
+            <!-- Brand -->
+            <div class="brand">
+                <span class="brand-logo">BV</span>
+                <p class="brand-tagline">Bhaala Vishvanathan · Portfolio</p>
             </div>
 
-            <!-- Tabs -->
-            <div class="tab-row">
-                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
-                <button class="tab-btn"        id="tab-register" onclick="switchTab('register')">Register</button>
+            <!-- Tab Switcher -->
+            <div class="tabs" role="tablist">
+                <button id="tab-login" class="tab-btn active" onclick="switchTab('login')" role="tab" aria-selected="true">Login</button>
+                <button id="tab-register" class="tab-btn" onclick="switchTab('register')" role="tab" aria-selected="false">Register</button>
             </div>
 
-            <!-- ══ LOGIN PANEL ══ -->
-            <div class="form-panel active" id="panel-login">
-                <form id="login-form" onsubmit="handleLogin(event)">
-                    <div class="field">
-                        <label>Email Address</label>
+            <!-- ── LOGIN FORM ── -->
+            <div id="section-login" class="form-section active">
+                <form id="login-form" onsubmit="handleLogin(event)" novalidate>
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
                         <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
                     </div>
-                    <div class="field">
-                        <label>Password</label>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
                         <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
                     </div>
-                    <button type="submit" class="submit-btn" id="login-btn">Login to Portfolio</button>
+                    <button type="submit" class="btn-submit" id="login-btn">Login →</button>
                 </form>
                 <div class="msg-box" id="login-msg"></div>
-                <p class="auth-footer">
-                    Don't have an account? <a href="#" onclick="switchTab('register')" style="color:#ffd369;text-decoration:none;font-weight:700;">Register here</a>
-                </p>
+                <div class="divider"><span>Don't have an account?</span></div>
+                <p class="back-link"><a href="#" onclick="switchTab('register'); return false;">Create a free account</a></p>
             </div>
 
-            <!-- ══ REGISTER PANEL ══ -->
-            <div class="form-panel" id="panel-register">
-                <form id="register-form" onsubmit="handleRegister(event)">
-                    <div class="field">
-                        <label>Full Name</label>
+            <!-- ── REGISTER FORM ── -->
+            <div id="section-register" class="form-section">
+                <form id="register-form" onsubmit="handleRegister(event)" novalidate>
+                    <div class="form-group">
+                        <label for="reg-name">Full Name</label>
                         <input type="text" id="reg-name" placeholder="Your full name" required autocomplete="name">
                     </div>
-                    <div class="field">
-                        <label>Email Address</label>
+                    <div class="form-group">
+                        <label for="reg-email">Email Address</label>
                         <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email">
                     </div>
-                    <div class="field">
-                        <label>Phone Number</label>
-                        <input type="tel" id="reg-phone" placeholder="+91 9876543210" required autocomplete="tel">
+                    <div class="form-group">
+                        <label for="reg-phone">Phone Number</label>
+                        <input type="tel" id="reg-phone" placeholder="+91 XXXXX XXXXX" required autocomplete="tel">
                     </div>
-                    <div class="field">
-                        <label>Password</label>
-                        <input type="password" id="reg-password" placeholder="Create a password (min 6 chars)" minlength="6" required autocomplete="new-password">
+                    <div class="form-group">
+                        <label for="reg-password">Password</label>
+                        <input type="password" id="reg-password" placeholder="Min. 6 characters" required autocomplete="new-password">
                     </div>
-                    <button type="submit" class="submit-btn" id="register-btn">Create Account</button>
+                    <button type="submit" class="btn-submit" id="register-btn">Create Account →</button>
                 </form>
                 <div class="msg-box" id="register-msg"></div>
-                <p class="auth-footer">
-                    Already registered? <a href="#" onclick="switchTab('login')" style="color:#ffd369;text-decoration:none;font-weight:700;">Login here</a>
-                </p>
-            </div>
-
-            <div class="auth-footer" style="margin-top:24px;">
-                © 2026 <span>Bhaala Vishvanathan</span>
+                <div class="divider"><span>Already have an account?</span></div>
+                <p class="back-link"><a href="#" onclick="switchTab('login'); return false;">Sign in instead</a></p>
             </div>
 
         </div>
     </div>
 
     <script>
-        const SERVER = 'http://localhost:3000';
-
-        // ── TAB SWITCHER ──
+        /* ── Tab Switcher ── */
         function switchTab(tab) {
-            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-            document.getElementById('panel-login').classList.toggle('active', tab === 'login');
-            document.getElementById('panel-register').classList.toggle('active', tab === 'register');
-            clearMessages();
-        }
-
-        function clearMessages() {
-            ['login-msg', 'register-msg'].forEach(id => {
-                const el = document.getElementById(id);
-                el.style.display = 'none';
-                el.textContent = '';
-                el.className = 'msg-box';
-            });
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('tab-' + tab).setAttribute('aria-selected','true');
+            document.getElementById('section-' + tab).classList.add('active');
+            clearMsg('login-msg');
+            clearMsg('register-msg');
         }
 
         function showMsg(id, text, type) {
             const el = document.getElementById(id);
             el.textContent = text;
-            el.className = `msg-box ${type}`;
-            el.style.display = 'block';
+            el.className = 'msg-box ' + type;
         }
 
-        function setLoading(btnId, loading, defaultText) {
+        function clearMsg(id) {
+            const el = document.getElementById(id);
+            el.textContent = '';
+            el.className = 'msg-box';
+        }
+
+        function setLoading(btnId, loading, label) {
             const btn = document.getElementById(btnId);
             btn.disabled = loading;
-            btn.innerHTML = loading
-                ? `<span class="spinner"></span>Please wait…`
-                : defaultText;
+            btn.innerHTML = loading ? '<span class="spinner"></span> Please wait…' : label;
         }
 
-        // ── LOGIN HANDLER ──
+        /* ── Login Handler ── */
         async function handleLogin(e) {
             e.preventDefault();
-            clearMessages();
             const email    = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
 
-            setLoading('login-btn', true, 'Login to Portfolio');
+            if (!email || !password) {
+                showMsg('login-msg', '⚠️ Please fill in all fields.', 'error');
+                return;
+            }
+
+            setLoading('login-btn', true, 'Login →');
+            clearMsg('login-msg');
+
             try {
-                const res  = await fetch(`${SERVER}/login`, {
+                const res  = await fetch('/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -417,38 +448,42 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    showMsg('login-msg', `✅ ${data.message}`, 'success');
-                    // Store session so guarded pages let the user through
+                    showMsg('login-msg', '✅ ' + data.message, 'success');
                     sessionStorage.setItem('bhaala_logged_in', 'true');
                     sessionStorage.setItem('bhaala_user', data.name || email);
-                    setTimeout(() => { window.location.href = 'Bhaala.html'; }, 1400);
+                    setTimeout(() => { window.location.href = 'Bhaala.html'; }, 1200);
                 } else {
-                    showMsg('login-msg', `❌ ${data.message}`, 'error');
-                    setLoading('login-btn', false, 'Login to Portfolio');
+                    showMsg('login-msg', '❌ ' + data.message, 'error');
                 }
             } catch (err) {
-                showMsg('login-msg', '❌ Cannot connect to server. Is it running?', 'error');
-                setLoading('login-btn', false, 'Login to Portfolio');
+                showMsg('login-msg', '❌ Cannot connect to server. Make sure it is running.', 'error');
+            } finally {
+                setLoading('login-btn', false, 'Login →');
             }
         }
 
-        // ── REGISTER HANDLER ──
+        /* ── Register Handler ── */
         async function handleRegister(e) {
             e.preventDefault();
-            clearMessages();
             const name     = document.getElementById('reg-name').value.trim();
             const email    = document.getElementById('reg-email').value.trim();
             const phone    = document.getElementById('reg-phone').value.trim();
             const password = document.getElementById('reg-password').value;
 
+            if (!name || !email || !phone || !password) {
+                showMsg('register-msg', '⚠️ Please fill in all fields.', 'error');
+                return;
+            }
             if (password.length < 6) {
-                showMsg('register-msg', '❌ Password must be at least 6 characters.', 'error');
+                showMsg('register-msg', '⚠️ Password must be at least 6 characters.', 'error');
                 return;
             }
 
-            setLoading('register-btn', true, 'Create Account');
+            setLoading('register-btn', true, 'Create Account →');
+            clearMsg('register-msg');
+
             try {
-                const res  = await fetch(`${SERVER}/register`, {
+                const res  = await fetch('/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password, phone })
@@ -456,18 +491,19 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    showMsg('register-msg', `✅ ${data.message}`, 'success');
+                    showMsg('register-msg', '✅ ' + data.message, 'success');
                     document.getElementById('register-form').reset();
-                    setTimeout(() => switchTab('login'), 2200);
+                    setTimeout(() => { switchTab('login'); }, 2000);
                 } else {
-                    showMsg('register-msg', `❌ ${data.message}`, 'error');
+                    showMsg('register-msg', '❌ ' + data.message, 'error');
                 }
             } catch (err) {
-                showMsg('register-msg', '❌ Cannot connect to server. Is it running?', 'error');
+                showMsg('register-msg', '❌ Cannot connect to server. Make sure it is running.', 'error');
             } finally {
-                setLoading('register-btn', false, 'Create Account');
+                setLoading('register-btn', false, 'Create Account →');
             }
         }
     </script>
+
 </body>
 </html>

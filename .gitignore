@@ -1,4 +1,5 @@
 # Environment secrets — NEVER commit these
+.env
 frontend/.env
 backend/.env
 
@@ -11,10 +12,17 @@ frontend/dist/
 backend/venv/
 backend/__pycache__/
 backend/*.pyc
+
+# User data — sensitive, never commit
+users.xlsx
 backend/registered_users.xlsx
 
 # Mac
 .DS_Store
+**/.DS_Store
+Images/.DS_Store
+img/.DS_Store
 
 # Misc
 *.log
+*.zip
