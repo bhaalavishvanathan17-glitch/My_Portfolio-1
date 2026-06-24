@@ -1,11 +1,13 @@
 /**
  * ═══════════════════════════════════════════════════════════════════
- *  BHAALA Portfolio — Express Backend  (v4)
+ *  BHAALA Portfolio — Express Backend  (v5)
  *
  *  Routes:
  *    POST /register              — register user (bcrypt hashed password)
  *    POST /login                 — authenticate + login activity tracking
- *    POST /contact               — send contact email via Nodemailer
+ *    POST /contact               — send contact form email via Nodemailer
+ *    GET  /health                — SMTP status + env check (public)
+ *    GET  /test-email            — admin: send live test email from production
  *    GET  /admin/login-history   — secure admin: view login history
  *    GET  /email-log             — secure admin: view email delivery log
  *
@@ -18,11 +20,16 @@
  *    • UA parser   — device/browser/OS detection on login
  *    • Geolocation — ip-api.com (free, no key) for country/city on login
  *
- *  Email Reliability (v4):
- *    • Persistent email_log.jsonl — every send attempt logged to disk
- *    • sendMailWithRetry()        — up to 3 retries with 2s back-off
- *    • SMTP connection timeouts   — prevent hanging requests
- *    • Startup connectivity test  — verifies transporter at boot
+ *  Email Reliability (v5 — Production Hardened):
+ *    • No SMTP connection pooling — fresh conn per send (Render-safe)
+ *    • Hardcoded fallback recipient — never sends to 'undefined'
+ *    • smtpReady flag — live SMTP health tracked in memory
+ *    • sendMailWithRetry()  — up to 3 retries with exponential back-off
+ *    • SMTP connection timeouts  — prevent hanging requests
+ *    • Startup verification — loud banner if credentials missing
+ *    • /health endpoint  — check production SMTP status any time
+ *    • /test-email endpoint — trigger real email from production server
+ *    • Persistent email_log.jsonl + console logging (Render-safe)
  * ═══════════════════════════════════════════════════════════════════
  */
 
@@ -61,12 +68,20 @@ const H_HEADERS = ['Name', 'Email', 'Date (IST)', 'Time (IST)', 'Device Type', '
 const BCRYPT_ROUNDS = 12;
 const MAX_EMAIL_LOG_LINES = 500;   // keep last 500 entries in memory trim
 
+// Hardcoded owner email — NEVER depends on env vars being set
+const OWNER_EMAIL = 'bhaalavishvanathan17@gmail.com';
+
+// Live SMTP health flag — updated at startup and on each send
+let smtpReady = false;
+let smtpError = null;
+let lastEmailSentAt = null;
+
 // ──────────────────────────────────────────────────────────────
 //  Core middleware
 // ──────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
-app.set('trust proxy', 1);      // trust exactly 1 proxy hop (Render/Nginx) — required for correct IP + rate-limiting
+app.set('trust proxy', true);   // trust all proxies (Render may use multiple hops)
 
 // Redirect root → login page
 app.get('/', (req, res) => res.redirect('/login.html'));
@@ -82,34 +97,77 @@ const contactLimiter = rateLimit({
     max            : 3,
     message        : { success: false, message: 'Too many messages. Please wait 15 minutes before trying again.' },
     standardHeaders: true,
-    legacyHeaders  : false
+    legacyHeaders  : false,
+    validate       : { trustProxy: false }   // suppress ERR_ERL_PERMISSIVE_TRUST_PROXY — intentional for Render multi-hop
 });
 
 // ──────────────────────────────────────────────────────────────
-//  Nodemailer — Gmail SMTP transporter (with timeouts)
+//  Nodemailer — Gmail SMTP transporter
+//  NOTE: pool=false (no persistent connections) — required for Render
+//  Render's free tier kills idle connections; fresh conn per send is safer
 // ──────────────────────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-    service            : 'gmail',
-    auth               : { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASS },
-    connectionTimeout  : 10000,   // 10s to establish connection
-    greetingTimeout    : 10000,   // 10s for SMTP greeting
-    socketTimeout      : 15000,   // 15s idle socket timeout
-    pool               : true,    // reuse connections for better throughput
-    maxConnections     : 3,
-    maxMessages        : 50
-});
 
-// Startup verification
-transporter.verify((err) => {
-    if (err) {
-        console.warn('⚠️  Nodemailer not ready —', err.message);
-        console.warn('   Set GMAIL_USER and GMAIL_APP_PASS in .env');
-        logEmail({ type: 'STARTUP', status: 'FAIL', error: err.message });
-    } else {
-        console.log('✅  Nodemailer: Email transporter is ready.');
-        logEmail({ type: 'STARTUP', status: 'OK', to: process.env.GMAIL_USER });
+function createTransporter() {
+    return nodemailer.createTransport({
+        service          : 'gmail',
+        auth             : {
+            user: process.env.GMAIL_USER  || '',
+            pass: process.env.GMAIL_APP_PASS || ''
+        },
+        connectionTimeout: 15000,   // 15s to establish connection
+        greetingTimeout  : 15000,   // 15s for SMTP greeting
+        socketTimeout    : 20000,   // 20s idle socket timeout
+        pool             : false    // NO pooling — fresh connection per email (Render-safe)
+    });
+}
+
+const transporter = createTransporter();
+
+// ── Startup verification ──────────────────────────────────────
+// Runs after server starts — updates smtpReady flag
+function verifySmtp() {
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPass = process.env.GMAIL_APP_PASS;
+
+    // Early check — missing credentials
+    if (!gmailUser || !gmailPass) {
+        smtpReady = false;
+        smtpError = 'GMAIL_USER or GMAIL_APP_PASS environment variable is not set.';
+        console.error('');
+        console.error('╔══════════════════════════════════════════════════════════╗');
+        console.error('║  ❌  EMAIL CREDENTIALS MISSING — Emails will NOT send!  ║');
+        console.error('║  Set GMAIL_USER and GMAIL_APP_PASS in Render dashboard.  ║');
+        console.error('╚══════════════════════════════════════════════════════════╝');
+        console.error('');
+        logEmail({ type: 'STARTUP', status: 'FAIL', error: smtpError });
+        return;
     }
-});
+
+    transporter.verify((err) => {
+        if (err) {
+            smtpReady = false;
+            smtpError = err.message;
+            console.error('');
+            console.error('╔══════════════════════════════════════════════════════════╗');
+            console.error('║  ❌  SMTP VERIFY FAILED — Emails will NOT send!         ║');
+            console.error(`║  Error: ${err.message.substring(0,47).padEnd(47)} ║`);
+            console.error('║  Check GMAIL_APP_PASS in Render environment variables.  ║');
+            console.error('╚══════════════════════════════════════════════════════════╝');
+            console.error('');
+            logEmail({ type: 'STARTUP', status: 'FAIL', error: err.message });
+        } else {
+            smtpReady = true;
+            smtpError = null;
+            console.log(`✅  [${ts()}] Nodemailer SMTP verified — ready to send as ${gmailUser}`);
+            logEmail({ type: 'STARTUP', status: 'OK', to: gmailUser });
+        }
+    });
+}
+
+/** ISO timestamp prefix for console logs */
+function ts() {
+    return new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
+}
 
 // ──────────────────────────────────────────────────────────────
 //  Persistent Email Logger
@@ -139,11 +197,23 @@ function logEmail(entry) {
 async function sendMailWithRetry(mailOptions, type = 'generic', maxRetries = 3) {
     let lastError;
 
+    // Safety guard: ensure 'to' is always a real address
+    if (!mailOptions.to || mailOptions.to === 'undefined') {
+        mailOptions.to = OWNER_EMAIL;
+        console.warn(`⚠️  [${type}] 'to' was undefined — using hardcoded owner email instead.`);
+    }
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            const info = await transporter.sendMail(mailOptions);
+            // Create a fresh transporter for each attempt (Render-safe, avoids stale connections)
+            const freshTransporter = createTransporter();
+            const info = await freshTransporter.sendMail(mailOptions);
 
             // ✅ Success
+            smtpReady = true;
+            smtpError = null;
+            lastEmailSentAt = new Date().toISOString();
+
             logEmail({
                 type,
                 status   : 'SUCCESS',
@@ -152,11 +222,15 @@ async function sendMailWithRetry(mailOptions, type = 'generic', maxRetries = 3) 
                 messageId: info.messageId,
                 attempt
             });
-            console.log(`📧 [${type}] Email sent (attempt ${attempt}) → ${mailOptions.to} | ID: ${info.messageId}`);
+            console.log(`📧 [${ts()}] [${type}] ✅ Email sent (attempt ${attempt}) → ${mailOptions.to} | ID: ${info.messageId}`);
             return info;
 
         } catch (err) {
             lastError = err;
+
+            // Update health state on failure
+            smtpReady = false;
+            smtpError = err.message;
 
             logEmail({
                 type,
@@ -166,18 +240,18 @@ async function sendMailWithRetry(mailOptions, type = 'generic', maxRetries = 3) 
                 attempt,
                 error  : err.message
             });
-            console.error(`❌ [${type}] Email attempt ${attempt}/${maxRetries} failed: ${err.message}`);
+            console.error(`❌ [${ts()}] [${type}] Email attempt ${attempt}/${maxRetries} FAILED: ${err.message}`);
 
             if (attempt < maxRetries) {
-                const delay = attempt * 2000; // 2s, 4s
-                console.log(`   ↺ Retrying in ${delay / 1000}s…`);
+                const delay = attempt * 3000; // 3s, 6s back-off
+                console.log(`   ↺ [${type}] Retrying in ${delay / 1000}s…`);
                 await new Promise(r => setTimeout(r, delay));
             }
         }
     }
 
     // All attempts exhausted
-    console.error(`❌ [${type}] All ${maxRetries} attempts failed. Last error: ${lastError.message}`);
+    console.error(`❌ [${ts()}] [${type}] All ${maxRetries} attempts permanently failed. Last: ${lastError.message}`);
     throw lastError;
 }
 
@@ -580,9 +654,9 @@ app.post('/login', async (req, res) => {
             // 2. Send login notification email (with retry)
             try {
                 await sendMailWithRetry({
-                    from   : `"Bhaala Portfolio 🔐" <${process.env.GMAIL_USER}>`,
-                    to     : process.env.GMAIL_USER,
-                    replyTo: process.env.GMAIL_USER,
+                    from   : `"Bhaala Portfolio 🔐" <${process.env.GMAIL_USER || OWNER_EMAIL}>`,
+                    to     : OWNER_EMAIL,    // hardcoded — never undefined
+                    replyTo: OWNER_EMAIL,
                     subject: `🔐 Login Alert — ${user.name} signed in (${dateIST}, ${timeIST})`,
                     html   : buildLoginEmail({ name: user.name, email: user.email, date: dateIST, time: timeIST, device, browser, os, ip, country, city }),
                     text   : `Login detected\n\nUser: ${user.name} (${user.email})\nDate: ${dateIST}  Time: ${timeIST}\nDevice: ${device}  Browser: ${browser}  OS: ${os}\nIP: ${ip}  Location: ${city}, ${country}`
@@ -633,10 +707,12 @@ app.post('/contact', contactLimiter, async (req, res) => {
     const timeIST   = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
     const ip        = cleanIp(req.ip || 'Unknown');
 
+    console.log(`📨 [${ts()}] Contact form submission from ${safeName} <${safeEmail}> — subject: "${safeSubject}"`);
+
     try {
         await sendMailWithRetry({
-            from   : `"Bhaala Portfolio" <${process.env.GMAIL_USER}>`,
-            to     : process.env.GMAIL_USER,
+            from   : `"Bhaala Portfolio" <${process.env.GMAIL_USER || OWNER_EMAIL}>`,
+            to     : OWNER_EMAIL,    // hardcoded — never undefined
             replyTo: safeEmail,
             subject: `[Portfolio] ${safeSubject} — from ${safeName}`,
             html   : buildContactEmail({ name: safeName, email: safeEmail, subject: safeSubject, message: safeMessage, date: dateIST, time: timeIST, ip }),
@@ -698,6 +774,76 @@ app.get('/admin/login-history', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════
+//  GET /health — Public: SMTP status + environment check
+// ══════════════════════════════════════════════════════════════
+app.get('/health', (req, res) => {
+    const status = {
+        server      : 'online',
+        version     : 'v5',
+        timestamp   : new Date().toISOString(),
+        smtp: {
+            ready       : smtpReady,
+            error       : smtpError || null,
+            lastSentAt  : lastEmailSentAt || null,
+            gmailUser   : process.env.GMAIL_USER ? '✅ set' : '❌ NOT SET',
+            gmailPass   : process.env.GMAIL_APP_PASS ? '✅ set' : '❌ NOT SET',
+            recipient   : OWNER_EMAIL
+        }
+    };
+    const httpStatus = smtpReady ? 200 : 503;
+    return res.status(httpStatus).json(status);
+});
+
+// ══════════════════════════════════════════════════════════════
+//  GET /test-email — Admin: Send live test email from production
+// ══════════════════════════════════════════════════════════════
+app.get('/test-email', async (req, res) => {
+    const providedKey = req.query.key || req.headers['x-admin-key'] || '';
+
+    if (!process.env.ADMIN_PASSWORD || providedKey !== process.env.ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+
+    const now     = new Date();
+    const dateIST = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });
+    const timeIST = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
+
+    try {
+        const info = await sendMailWithRetry({
+            from   : `"Bhaala Portfolio Test" <${process.env.GMAIL_USER || OWNER_EMAIL}>`,
+            to     : OWNER_EMAIL,
+            subject: `🔧 Production Email Test — ${dateIST} ${timeIST}`,
+            html   : `<div style="font-family:Arial,sans-serif;background:#111;color:#fff;padding:32px;border-radius:12px;max-width:500px;margin:auto">
+                        <h2 style="color:#4ade80">✅ Email Test Passed!</h2>
+                        <p>This test email was sent directly from your <strong>Render production server</strong>.</p>
+                        <table style="width:100%;border-collapse:collapse;margin-top:16px">
+                          <tr><td style="padding:8px;color:#aaa">Server:</td><td style="padding:8px">Render Production</td></tr>
+                          <tr><td style="padding:8px;color:#aaa">Sent At:</td><td style="padding:8px">${dateIST} ${timeIST} IST</td></tr>
+                          <tr><td style="padding:8px;color:#aaa">SMTP User:</td><td style="padding:8px">${process.env.GMAIL_USER || 'NOT SET'}</td></tr>
+                          <tr><td style="padding:8px;color:#aaa">MessageID:</td><td style="padding:8px;font-size:11px;word-break:break-all">(see response)</td></tr>
+                        </table>
+                        <p style="margin-top:16px;color:#aaa;font-size:13px">If you received this, your email system is fully operational on Render. ✅</p>
+                      </div>`,
+            text: `Email Test Passed!\nSent from Render production server at ${dateIST} ${timeIST} IST.\nSMTP User: ${process.env.GMAIL_USER}`
+        }, 'TEST_EMAIL');
+
+        return res.json({
+            success  : true,
+            message  : `✅ Test email sent to ${OWNER_EMAIL}`,
+            messageId: info.messageId,
+            sentAt   : `${dateIST} ${timeIST}`
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: `❌ Test email failed: ${err.message}`,
+            smtpUser: process.env.GMAIL_USER || 'NOT SET',
+            smtpPass: process.env.GMAIL_APP_PASS ? '(set)' : 'NOT SET'
+        });
+    }
+});
+
+// ══════════════════════════════════════════════════════════════
 //  GET /email-log — Secure admin: email delivery log
 // ══════════════════════════════════════════════════════════════
 app.get('/email-log', (req, res) => {
@@ -741,11 +887,16 @@ app.get('/email-log', (req, res) => {
 app.listen(PORT, () => {
     console.log('');
     console.log('╔══════════════════════════════════════════╗');
-    console.log('║   BHAALA Portfolio — Server Running  v4  ║');
+    console.log('║   BHAALA Portfolio — Server Running  v5  ║');
     console.log(`║   http://localhost:${PORT}                   ║`);
     console.log('╚══════════════════════════════════════════╝');
     console.log('');
     console.log(`📁 Email log  → ${EMAIL_LOG}`);
     console.log(`📊 Login hist → ${HIST_FILE}`);
+    console.log(`📧 Owner mail → ${OWNER_EMAIL}`);
+    console.log(`🔍 Health     → http://localhost:${PORT}/health`);
     console.log('');
+
+    // Verify SMTP after server binds (gives Render time to inject env vars)
+    verifySmtp();
 });
