@@ -690,12 +690,25 @@
             }
         }
 
-        // ── Toast helper ──────────────────────────
+        // ── Toast helpers ─────────────────────────
         function showToast(type, title, msg, duration = 6000) {
             const icons = { success: '✅', error: '❌', warning: '⚠️' };
             document.getElementById('toast-icon').textContent  = icons[type] || '📢';
             document.getElementById('toast-title').textContent = title;
             document.getElementById('toast-msg').textContent   = msg;
+
+            toast.className = `cf-toast ${type} show`;
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(hideToast, duration);
+        }
+
+        /** Like showToast but allows HTML in the message (for mailto links etc.) */
+        function showToastHTML(type, title, htmlMsg, duration = 6000) {
+            const icons = { success: '✅', error: '❌', warning: '⚠️' };
+            document.getElementById('toast-icon').textContent  = icons[type] || '📢';
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-msg').innerHTML     = htmlMsg;
 
             toast.className = `cf-toast ${type} show`;
 
@@ -716,7 +729,7 @@
             btnLabel.textContent  = loading ? 'Sending…' : 'Send Message 🚀';
         }
 
-        // ── Form submit ───────────────────────────
+        // ── Form submit (with auto-retry) ─────────
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -740,29 +753,53 @@
                 _hp     : hpEl.value     // honeypot — must be empty
             };
 
-            try {
-                const res  = await fetch('/contact', {
-                    method  : 'POST',
-                    headers : { 'Content-Type': 'application/json' },
-                    body    : JSON.stringify(payload)
-                });
+            /** Single attempt — returns {ok, status, data} */
+            async function doSend() {
+                try {
+                    const res  = await fetch('/contact', {
+                        method  : 'POST',
+                        headers : { 'Content-Type': 'application/json' },
+                        body    : JSON.stringify(payload)
+                    });
+                    let data = {};
+                    try { data = await res.json(); } catch {}
+                    return { ok: res.ok, status: res.status, data };
+                } catch {
+                    return { ok: false, status: 0, data: {} };
+                }
+            }
 
-                const data = await res.json();
+            try {
+                // First attempt
+                let result = await doSend();
+
+                // Auto-retry once on network/server errors (not on 4xx validation errors or 429)
+                if (!result.ok && result.status !== 400 && result.status !== 409 && result.status !== 429) {
+                    btnLabel.textContent = 'Retrying…';
+                    showToast('warning', 'Retrying…', 'First attempt failed. Trying once more automatically.', 4000);
+                    await new Promise(r => setTimeout(r, 3000));
+                    result = await doSend();
+                }
+
+                const { ok, status, data } = result;
+
+                // Get current IST time for success toast
+                const sentAt = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
 
                 if (data.success) {
-                    showToast('success', 'Message Sent! 🎉', data.message, 8000);
+                    showToast('success', 'Message Sent! 🎉', `${data.message} (sent at ${sentAt})`, 9000);
                     form.reset();
                     counter.textContent = '0 / 2000';
                     counter.className   = 'char-counter';
                     [nameEl, emailEl, subjectEl, msgEl].forEach(el => el.classList.remove('valid','invalid'));
-                } else if (res.status === 429) {
-                    showToast('warning', 'Too Many Requests', data.message, 10000);
+                } else if (status === 429) {
+                    showToast('warning', 'Too Many Requests', data.message || 'Please wait 15 minutes before trying again.', 10000);
                 } else {
-                    showToast('error', 'Failed to Send', data.message, 8000);
+                    // Permanent failure — show mailto fallback
+                    const fallback = `Failed to deliver. <a href="mailto:bhaalavishvanathan17@gmail.com?subject=${encodeURIComponent(payload.subject)}" style="color:#ffd369;font-weight:700">Email directly instead →</a>`;
+                    showToastHTML('error', 'Could Not Send', fallback, 12000);
                 }
 
-            } catch (err) {
-                showToast('error', 'Network Error', 'Could not reach the server. Please try again or email directly.', 8000);
             } finally {
                 setLoading(false);
             }

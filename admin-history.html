@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bhaala | Admin — Login History</title>
+    <title>Bhaala | Admin — Login History & Email Log</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -318,6 +318,56 @@
         .toast.success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #6ee7b7; }
         .toast.error   { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.4);  color: #fca5a5; }
 
+        /* ── Tab switcher ── */
+        .tab-switcher {
+            display: flex; gap: 6px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 5px;
+            margin-bottom: 32px; width: fit-content;
+        }
+        .tab-btn-sw {
+            padding: 9px 22px; border-radius: 9px;
+            border: none; cursor: pointer;
+            font-family: inherit; font-size: 13px; font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            background: transparent; transition: all 0.25s;
+            letter-spacing: 0.3px;
+        }
+        .tab-btn-sw.active {
+            background: linear-gradient(135deg,#f25050,#dd2476);
+            color: #fff; box-shadow: 0 4px 14px rgba(242,80,80,0.35);
+        }
+
+        /* ── Email Log ── */
+        .email-log-section { display: none; }
+        .email-log-section.active { display: block; }
+        .login-history-section { display: block; }
+        .login-history-section.active { display: block; }
+        .login-history-section.hidden { display: none; }
+
+        .log-filter-row {
+            display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center;
+        }
+        .log-filter-btn {
+            padding: 6px 16px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.6); cursor: pointer;
+            font-family: inherit; font-size: 12px; font-weight: 600;
+            transition: all 0.2s; letter-spacing: 0.5px;
+        }
+        .log-filter-btn.active {
+            background: rgba(242,80,80,0.15);
+            border-color: rgba(242,80,80,0.4); color: #f25050;
+        }
+        .badge-ok  { display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#6ee7b7; }
+        .badge-fail{ display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:#fca5a5; }
+        .badge-info{ display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.35);color:#a5b4fc; }
+        .log-type-contact { color: #fbbf24; font-size: 12px; font-weight: 700; }
+        .log-type-login   { color: #60a5fa; font-size: 12px; font-weight: 700; }
+        .log-type-startup { color: #a78bfa; font-size: 12px; font-weight: 700; }
+
         /* ── Responsive ── */
         @media (max-width: 900px) {
             .admin-nav { padding: 0 20px; }
@@ -388,8 +438,14 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-badge">🔐 Secure Admin</div>
-        <h1>Login Activity History</h1>
-        <p>All successful login events recorded from your portfolio.</p>
+        <h1>Admin Dashboard</h1>
+        <p>Login activity history and email delivery monitoring for your portfolio.</p>
+    </div>
+
+    <!-- Tab Switcher -->
+    <div class="tab-switcher">
+        <button class="tab-btn-sw active" id="tab-login-btn" onclick="switchTab('login')">🔐 Login History</button>
+        <button class="tab-btn-sw" id="tab-email-btn" onclick="switchTab('email')">📧 Email Log</button>
     </div>
 
     <!-- Stats -->
@@ -426,6 +482,8 @@
         </div>
     </div>
 
+    <!-- Login History Section -->
+    <div class="login-history-section" id="login-history-section">
     <!-- Controls -->
     <div class="table-controls">
         <div class="search-box">
@@ -473,6 +531,89 @@
             <span style="color:rgba(255,255,255,0.2)">Sorted: most recent first · All times in IST</span>
         </div>
     </div>
+
+    </div><!-- end login-history-section -->
+
+    <!-- Email Log Section -->
+    <div class="email-log-section" id="email-log-section">
+        <div class="page-header" style="padding-top:0;margin-bottom:28px">
+            <div class="page-badge">📬 Delivery Monitoring</div>
+            <h2 style="font-size:26px;font-weight:800;color:#fff;margin:8px 0 6px">Email Delivery Log</h2>
+            <p style="color:rgba(255,255,255,0.5);font-size:15px">All email send attempts — successes, failures, and retries.</p>
+        </div>
+
+        <!-- Log stats -->
+        <div class="stats-grid" id="email-stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <div class="stat-label">Total Attempts</div>
+                <div class="stat-value" id="estat-total">—</div>
+                <div class="stat-sub">All time</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">✅</span>
+                <div class="stat-label">Successful</div>
+                <div class="stat-value" id="estat-ok" style="color:#6ee7b7">—</div>
+                <div class="stat-sub">Delivered</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">❌</span>
+                <div class="stat-label">Failed</div>
+                <div class="stat-value" id="estat-fail" style="color:#fca5a5">—</div>
+                <div class="stat-sub">All failures</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📩</span>
+                <div class="stat-label">Contact Emails</div>
+                <div class="stat-value" id="estat-contact">—</div>
+                <div class="stat-sub">Form submissions</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🔐</span>
+                <div class="stat-label">Login Alerts</div>
+                <div class="stat-value" id="estat-login">—</div>
+                <div class="stat-sub">Notifications sent</div>
+            </div>
+        </div>
+
+        <!-- Filter row -->
+        <div class="log-filter-row">
+            <button class="log-filter-btn active" id="logf-all"     onclick="setLogFilter('ALL')">All</button>
+            <button class="log-filter-btn"         id="logf-contact" onclick="setLogFilter('CONTACT_FORM')">📩 Contact</button>
+            <button class="log-filter-btn"         id="logf-login"   onclick="setLogFilter('LOGIN_NOTIFICATION')">🔐 Login</button>
+            <button class="log-filter-btn"         id="logf-fail"    onclick="setLogFilter('FAIL')">❌ Failures Only</button>
+            <button class="log-filter-btn"         id="logf-startup" onclick="setLogFilter('STARTUP')">⚡ Startup</button>
+            <button class="nav-btn nav-btn-outline" style="margin-left:auto;font-size:12px;padding:6px 14px" onclick="refreshEmailLog()">🔄 Refresh</button>
+            <button class="nav-btn nav-btn-outline" style="font-size:12px;padding:6px 14px" onclick="exportEmailLogCSV()">📥 Export CSV</button>
+        </div>
+
+        <!-- Log table -->
+        <div class="table-card">
+            <div class="table-scroll">
+                <table id="email-log-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Timestamp (IST)</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>To</th>
+                            <th>Subject</th>
+                            <th>Attempt</th>
+                            <th>Message ID / Error</th>
+                        </tr>
+                    </thead>
+                    <tbody id="email-log-tbody">
+                        <tr class="state-row"><td colspan="8"><span class="state-icon">⏳</span> Loading email log…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-footer">
+                <span id="elog-footer-info">—</span>
+                <span style="color:rgba(255,255,255,0.2)">Most recent first · Showing last 200 entries</span>
+            </div>
+        </div>
+    </div><!-- end email-log-section -->
 
 </main>
 
@@ -701,6 +842,164 @@ function esc(str) {
         .replace(/>/g,'&gt;')
         .replace(/"/g,'&quot;')
         .replace(/'/g,'&#39;');
+}
+
+/* ══════════════════════════════════════════════
+   Tab Switcher
+══════════════════════════════════════════════ */
+function switchTab(tab) {
+    const loginSec  = document.getElementById('login-history-section');
+    const emailSec  = document.getElementById('email-log-section');
+    const loginBtn  = document.getElementById('tab-login-btn');
+    const emailBtn  = document.getElementById('tab-email-btn');
+
+    if (tab === 'login') {
+        loginSec.classList.remove('hidden');
+        emailSec.classList.remove('active');
+        loginBtn.classList.add('active');
+        emailBtn.classList.remove('active');
+    } else {
+        loginSec.classList.add('hidden');
+        emailSec.classList.add('active');
+        emailBtn.classList.add('active');
+        loginBtn.classList.remove('active');
+        if (!emailLogLoaded) loadEmailLog();
+    }
+}
+
+/* ══════════════════════════════════════════════
+   Email Log
+══════════════════════════════════════════════ */
+let allEmailEntries = [];
+let filteredEmail   = [];
+let emailLogLoaded  = false;
+let currentLogFilter = 'ALL';
+
+async function loadEmailLog() {
+    if (!adminKey) return;
+    const tbody = document.getElementById('email-log-tbody');
+    tbody.innerHTML = '<tr class="state-row"><td colspan="8"><span class="state-icon">⏳</span> Loading…</td></tr>';
+
+    try {
+        const res  = await fetch(`/email-log?key=${encodeURIComponent(adminKey)}`);
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            tbody.innerHTML = '<tr class="state-row"><td colspan="8"><span class="state-icon">❌</span> Failed to load email log.</td></tr>';
+            return;
+        }
+
+        allEmailEntries = data.entries || [];
+        emailLogLoaded  = true;
+        updateEmailStats(allEmailEntries);
+        applyLogFilter();
+    } catch {
+        tbody.innerHTML = '<tr class="state-row"><td colspan="8"><span class="state-icon">❌</span> Server unreachable.</td></tr>';
+    }
+}
+
+function updateEmailStats(entries) {
+    const ok       = entries.filter(e => e.status === 'SUCCESS').length;
+    const fail     = entries.filter(e => e.status === 'FAIL').length;
+    const contact  = entries.filter(e => e.type === 'CONTACT_FORM').length;
+    const login    = entries.filter(e => e.type === 'LOGIN_NOTIFICATION').length;
+
+    document.getElementById('estat-total').textContent   = entries.length;
+    document.getElementById('estat-ok').textContent      = ok;
+    document.getElementById('estat-fail').textContent    = fail;
+    document.getElementById('estat-contact').textContent = contact;
+    document.getElementById('estat-login').textContent   = login;
+}
+
+function setLogFilter(filter) {
+    currentLogFilter = filter;
+    // Update button states
+    ['logf-all','logf-contact','logf-login','logf-fail','logf-startup'].forEach(id => {
+        document.getElementById(id)?.classList.remove('active');
+    });
+    const map = { 'ALL':'logf-all', 'CONTACT_FORM':'logf-contact', 'LOGIN_NOTIFICATION':'logf-login', 'FAIL':'logf-fail', 'STARTUP':'logf-startup' };
+    if (map[filter]) document.getElementById(map[filter])?.classList.add('active');
+    applyLogFilter();
+}
+
+function applyLogFilter() {
+    if (currentLogFilter === 'ALL') {
+        filteredEmail = [...allEmailEntries];
+    } else if (currentLogFilter === 'FAIL') {
+        filteredEmail = allEmailEntries.filter(e => e.status === 'FAIL');
+    } else {
+        filteredEmail = allEmailEntries.filter(e => e.type === currentLogFilter);
+    }
+    renderEmailLog(filteredEmail);
+}
+
+function renderEmailLog(entries) {
+    const tbody = document.getElementById('email-log-tbody');
+    document.getElementById('elog-footer-info').textContent =
+        `Showing ${entries.length} of ${allEmailEntries.length} entries`;
+
+    if (entries.length === 0) {
+        tbody.innerHTML = '<tr class="state-row"><td colspan="8"><span class="state-icon">📭</span> No entries match the current filter.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = entries.map((e, i) => {
+        const ts    = e.timestamp ? new Date(e.timestamp).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}) : '—';
+        const badge = e.status === 'SUCCESS'
+            ? `<span class="badge-ok">✅ SUCCESS</span>`
+            : e.status === 'FAIL'
+            ? `<span class="badge-fail">❌ FAIL</span>`
+            : `<span class="badge-info">ℹ️ ${esc(e.status)}</span>`;
+
+        const typeLabel = e.type === 'CONTACT_FORM'        ? `<span class="log-type-contact">📩 Contact</span>`
+                        : e.type === 'LOGIN_NOTIFICATION'  ? `<span class="log-type-login">🔐 Login</span>`
+                        : e.type === 'STARTUP'             ? `<span class="log-type-startup">⚡ Startup</span>`
+                        : `<span style="color:rgba(255,255,255,0.4);font-size:12px">${esc(e.type||'—')}</span>`;
+
+        const detail  = e.messageId
+            ? `<span style="font-size:11px;color:rgba(255,255,255,0.3);word-break:break-all">${esc(e.messageId)}</span>`
+            : e.error
+            ? `<span style="font-size:11px;color:#fca5a5;word-break:break-all">${esc(e.error)}</span>`
+            : '—';
+
+        return `<tr>
+            <td style="color:rgba(255,255,255,0.3);font-size:12px">${i+1}</td>
+            <td class="td-time" style="white-space:nowrap">${esc(ts)}</td>
+            <td>${typeLabel}</td>
+            <td>${badge}</td>
+            <td class="td-email">${esc(e.to||'—')}</td>
+            <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${esc(e.subject||'—')}</td>
+            <td style="text-align:center;color:rgba(255,255,255,0.5);font-size:13px">${e.attempt||'—'}</td>
+            <td style="max-width:220px">${detail}</td>
+        </tr>`;
+    }).join('');
+}
+
+async function refreshEmailLog() {
+    emailLogLoaded = false;
+    await loadEmailLog();
+    showToast('✅ Email log refreshed!', 'success');
+}
+
+function exportEmailLogCSV() {
+    if (filteredEmail.length === 0) { showToast('⚠️ No entries to export.', 'error'); return; }
+    const headers = ['#','Timestamp','Type','Status','To','Subject','Attempt','MessageID/Error'];
+    const rows = filteredEmail.map((e,i) => [
+        i+1,
+        e.timestamp ? new Date(e.timestamp).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}) : '',
+        e.type||'', e.status||'', e.to||'', e.subject||'', e.attempt||'',
+        e.messageId || e.error || ''
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+
+    const csv  = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `email-log-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`✅ Exported ${filteredEmail.length} entries!`, 'success');
 }
 </script>
 
