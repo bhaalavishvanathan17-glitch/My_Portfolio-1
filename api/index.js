@@ -1,36 +1,16 @@
 /**
  * ═══════════════════════════════════════════════════════════════════
- *  BHAALA Portfolio — Express Backend  (v5)
+ *  BHAALA Portfolio — Vercel Serverless Backend  (v6)
  *
  *  Routes:
- *    POST /register              — register user (bcrypt hashed password)
+ *    POST /register              — register user
  *    POST /login                 — authenticate + login activity tracking
- *    POST /contact               — send contact form email via Nodemailer
- *    GET  /health                — SMTP status + env check (public)
- *    GET  /test-email            — admin: send live test email from production
+ *    POST /contact               — send contact form email
+ *    GET  /health                — SMTP/Resend status + env check (public)
+ *    GET  /test-email            — admin: send live test email
  *    GET  /admin/login-history   — secure admin: view login history
  *    GET  /email-log             — secure admin: view email delivery log
- *
- *  Security:
- *    • bcryptjs    — password hashing (saltRounds=12)
- *    • Hybrid pw   — auto-upgrades legacy plain-text passwords silently
- *    • Rate limit  — /contact: 3 req/15 min per IP
- *    • Honeypot    — bot trap on contact form
- *    • Sanitise    — strips HTML tags from all text inputs
- *    • UA parser   — device/browser/OS detection on login
- *    • Geolocation — ip-api.com (free, no key) for country/city on login
- *
- *  Email Reliability (v5 — Production Hardened):
- *    • No SMTP connection pooling — fresh conn per send (Render-safe)
- *    • Hardcoded fallback recipient — never sends to 'undefined'
- *    • smtpReady flag — live SMTP health tracked in memory
- *    • sendMailWithRetry()  — up to 3 retries with exponential back-off
- *    • SMTP connection timeouts  — prevent hanging requests
- *    • Startup verification — loud banner if credentials missing
- *    • /health endpoint  — check production SMTP status any time
- *    • /test-email endpoint — trigger real email from production server
- *    • Persistent email_log.jsonl + console logging (Render-safe)
- * ═══════════════════════════════════════════════════════════════════
+ * ══════════════════════════════════════════════════════════════
  */
 
 'use strict';
@@ -40,6 +20,7 @@ require('dotenv').config();
 const express    = require('express');
 const cors       = require('cors');
 const { Pool }   = require('pg');
+const { Resend } = require('resend');
 const path       = require('path');
 const fs         = require('fs');
 const https      = require('https');
@@ -55,17 +36,17 @@ const PORT = process.env.PORT || 3000;
 //  File paths & DB configs
 // ──────────────────────────────────────────────────────────────
 
-const USERS_JSON_FILE = path.join(__dirname, 'users.json');
-const HIST_JSON_FILE  = path.join(__dirname, 'login_history.json');
-const EMAIL_LOG       = path.join(__dirname, 'email_log.jsonl');
+const USERS_JSON_FILE = path.join(__dirname, '..', 'users.json');
+const HIST_JSON_FILE  = path.join(__dirname, '..', 'login_history.json');
+const EMAIL_LOG       = path.join(__dirname, '..', 'email_log.jsonl');
 
 const BCRYPT_ROUNDS = 12;
-const MAX_EMAIL_LOG_LINES = 500;   // keep last 500 entries in memory trim
+const MAX_EMAIL_LOG_LINES = 500;
 
-// Hardcoded owner email — NEVER depends on env vars being set
+// Hardcoded owner email
 const OWNER_EMAIL = 'bhaalavishvanathan17@gmail.com';
 
-// Live SMTP health flag — updated at startup and on each send
+// Live SMTP/Resend health flag
 let smtpReady = false;
 let smtpError = null;
 let lastEmailSentAt = null;
@@ -75,13 +56,13 @@ let lastEmailSentAt = null;
 // ──────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
-app.set('trust proxy', true);   // trust all proxies (Render may use multiple hops)
+app.set('trust proxy', true);
 
 // Redirect root → login page
 app.get('/', (req, res) => res.redirect('/login.html'));
 
-// Serve static files
-app.use(express.static(__dirname));
+// Serve static files from parent directory (local fallback)
+app.use(express.static(path.join(__dirname, '..')));
 
 // ──────────────────────────────────────────────────────────────
 //  Rate limiter — /contact (3 per 15 min per IP)
@@ -92,15 +73,12 @@ const contactLimiter = rateLimit({
     message        : { success: false, message: 'Too many messages. Please wait 15 minutes before trying again.' },
     standardHeaders: true,
     legacyHeaders  : false,
-    validate       : { trustProxy: false }   // suppress ERR_ERL_PERMISSIVE_TRUST_PROXY — intentional for Render multi-hop
+    validate       : { trustProxy: false }
 });
 
 // ──────────────────────────────────────────────────────────────
-//  Nodemailer — Gmail SMTP transporter
-//  NOTE: pool=false (no persistent connections) — required for Render
-//  Render's free tier kills idle connections; fresh conn per send is safer
+//  Nodemailer — Gmail SMTP transporter (Fallback)
 // ──────────────────────────────────────────────────────────────
-
 function createTransporter() {
     return nodemailer.createTransport({
         service          : 'gmail',
@@ -108,222 +86,75 @@ function createTransporter() {
             user: process.env.GMAIL_USER  || '',
             pass: process.env.GMAIL_APP_PASS || ''
         },
-        connectionTimeout: 15000,   // 15s to establish connection
-        greetingTimeout  : 15000,   // 15s for SMTP greeting
-        socketTimeout    : 20000,   // 20s idle socket timeout
-        pool             : false    // NO pooling — fresh connection per email (Render-safe)
+        connectionTimeout: 15000,
+        greetingTimeout  : 15000,
+        socketTimeout    : 20000,
+        pool             : false
     });
 }
 
-const transporter = createTransporter();
+// ──────────────────────────────────────────────────────────────
+//  Resend Client Initialization
+// ──────────────────────────────────────────────────────────────
+let resendClient = null;
+if (process.env.RESEND_API_KEY) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+    smtpReady = true;
+    console.log('✅ Resend HTTP API client initialized.');
+}
 
-// ── Startup verification ──────────────────────────────────────
-// Runs after server starts — updates smtpReady flag
+// Startup SMTP verification (only if Resend is not configured)
 function verifySmtp() {
+    if (resendClient) return;
+
     const gmailUser = process.env.GMAIL_USER;
     const gmailPass = process.env.GMAIL_APP_PASS;
 
-    // Early check — missing credentials
     if (!gmailUser || !gmailPass) {
         smtpReady = false;
-        smtpError = 'GMAIL_USER or GMAIL_APP_PASS environment variable is not set.';
-        console.error('');
-        console.error('╔══════════════════════════════════════════════════════════╗');
-        console.error('║  ❌  EMAIL CREDENTIALS MISSING — Emails will NOT send!  ║');
-        console.error('║  Set GMAIL_USER and GMAIL_APP_PASS in Render dashboard.  ║');
-        console.error('╚══════════════════════════════════════════════════════════╝');
-        console.error('');
+        smtpError = 'Email credentials missing (GMAIL_USER or RESEND_API_KEY).';
+        console.warn('⚠️  Neither RESEND_API_KEY nor GMAIL credentials set.');
         logEmail({ type: 'STARTUP', status: 'FAIL', error: smtpError });
         return;
     }
 
+    const transporter = createTransporter();
     transporter.verify((err) => {
         if (err) {
             smtpReady = false;
             smtpError = err.message;
-            console.error('');
-            console.error('╔══════════════════════════════════════════════════════════╗');
-            console.error('║  ❌  SMTP VERIFY FAILED — Emails will NOT send!         ║');
-            console.error(`║  Error: ${err.message.substring(0,47).padEnd(47)} ║`);
-            console.error('║  Check GMAIL_APP_PASS in Render environment variables.  ║');
-            console.error('╚══════════════════════════════════════════════════════════╝');
-            console.error('');
+            console.error(`❌ SMTP Verify Failed: ${err.message}`);
             logEmail({ type: 'STARTUP', status: 'FAIL', error: err.message });
         } else {
             smtpReady = true;
             smtpError = null;
-            console.log(`✅  [${ts()}] Nodemailer SMTP verified — ready to send as ${gmailUser}`);
+            console.log(`✅ SMTP verified as fallback: ${gmailUser}`);
             logEmail({ type: 'STARTUP', status: 'OK', to: gmailUser });
         }
     });
 }
 
-/** ISO timestamp prefix for console logs */
 function ts() {
     return new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
 }
 
 // ──────────────────────────────────────────────────────────────
-//  Persistent Email Logger
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Append a JSON line to email_log.jsonl.
- * Fields: timestamp, type, to, subject, status, messageId, attempt, error
- */
-function logEmail(entry) {
-    const line = JSON.stringify({
-        timestamp: new Date().toISOString(),
-        ...entry
-    }) + '\n';
-    try {
-        fs.appendFileSync(EMAIL_LOG, line, 'utf8');
-    } catch (e) {
-        // Never let logging crash the server
-        console.error('⚠️  Could not write email_log.jsonl:', e.message);
-    }
-}
-
-// ──────────────────────────────────────────────────────────────
-//  sendMailWithRetry — up to maxRetries attempts with back-off
-// ──────────────────────────────────────────────────────────────
-
-async function sendMailWithRetry(mailOptions, type = 'generic', maxRetries = 3) {
-    let lastError;
-
-    // Safety guard: ensure 'to' is always a real address
-    if (!mailOptions.to || mailOptions.to === 'undefined') {
-        mailOptions.to = OWNER_EMAIL;
-        console.warn(`⚠️  [${type}] 'to' was undefined — using hardcoded owner email instead.`);
-    }
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            // Create a fresh transporter for each attempt (Render-safe, avoids stale connections)
-            const freshTransporter = createTransporter();
-            const info = await freshTransporter.sendMail(mailOptions);
-
-            // ✅ Success
-            smtpReady = true;
-            smtpError = null;
-            lastEmailSentAt = new Date().toISOString();
-
-            logEmail({
-                type,
-                status   : 'SUCCESS',
-                to       : mailOptions.to,
-                subject  : mailOptions.subject,
-                messageId: info.messageId,
-                attempt
-            });
-            console.log(`📧 [${ts()}] [${type}] ✅ Email sent (attempt ${attempt}) → ${mailOptions.to} | ID: ${info.messageId}`);
-            return info;
-
-        } catch (err) {
-            lastError = err;
-
-            // Update health state on failure
-            smtpReady = false;
-            smtpError = err.message;
-
-            logEmail({
-                type,
-                status : 'FAIL',
-                to     : mailOptions.to,
-                subject: mailOptions.subject,
-                attempt,
-                error  : err.message
-            });
-            console.error(`❌ [${ts()}] [${type}] Email attempt ${attempt}/${maxRetries} FAILED: ${err.message}`);
-
-            if (attempt < maxRetries) {
-                const delay = attempt * 3000; // 3s, 6s back-off
-                console.log(`   ↺ [${type}] Retrying in ${delay / 1000}s…`);
-                await new Promise(r => setTimeout(r, delay));
-            }
-        }
-    }
-
-    // All attempts exhausted
-    console.error(`❌ [${ts()}] [${type}] All ${maxRetries} attempts permanently failed. Last: ${lastError.message}`);
-    throw lastError;
-}
-
-// ──────────────────────────────────────────────────────────────
-//  Helper utilities
-// ──────────────────────────────────────────────────────────────
-
-/** Strip HTML tags, collapse newlines, trim, cap length */
-function sanitise(str = '', maxLen = 2000) {
-    return String(str)
-        .replace(/<[^>]*>/g, '')
-        .replace(/\n{4,}/g, '\n\n')
-        .trim()
-        .slice(0, maxLen);
-}
-
-/** Basic email format check */
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-/** Detect device type from raw User-Agent string */
-function getDeviceType(uaString) {
-    if (/ipad|tablet|(android(?!.*mobile))/i.test(uaString)) return 'Tablet';
-    if (/mobile|android|iphone|ipod|blackberry|windows phone|opera mini/i.test(uaString)) return 'Mobile';
-    return 'Desktop';
-}
-
-/** Clean raw IP — strip IPv4-mapped IPv6 prefix */
-function cleanIp(raw) {
-    return (raw || 'Unknown').replace(/^::ffff:/, '').trim();
-}
-
-/**
- * Fetch country + city from ip-api.com (free, no API key).
- * Falls back gracefully on timeout / localhost / private IPs.
- */
-function getGeoLocation(ip) {
-    return new Promise((resolve) => {
-        const clean = cleanIp(ip);
-
-        // Private / loopback → no real geo data
-        if (!clean || clean === '127.0.0.1' || clean === '::1'
-            || clean.startsWith('192.168.') || clean.startsWith('10.')
-            || clean.startsWith('172.')) {
-            return resolve({ country: 'Localhost', city: 'Local Network' });
-        }
-
-        const url = `https://ip-api.com/json/${clean}?fields=status,country,city`;
-        const req = https.get(url, (res) => {
-            let raw = '';
-            res.on('data', chunk => (raw += chunk));
-            res.on('end', () => {
-                try {
-                    const json = JSON.parse(raw);
-                    resolve(json.status === 'success'
-                        ? { country: json.country || 'Unknown', city: json.city || 'Unknown' }
-                        : { country: 'Unknown', city: 'Unknown' });
-                } catch {
-                    resolve({ country: 'Unknown', city: 'Unknown' });
-                }
-            });
-        });
-        req.on('error', () => resolve({ country: 'Unknown', city: 'Unknown' }));
-        req.setTimeout(4000, () => { req.destroy(); resolve({ country: 'Unknown', city: 'Unknown' }); });
-    });
-}
-
-// ──────────────────────────────────────────────────────────────
 //  Database connection & Helpers
 // ──────────────────────────────────────────────────────────────
-
 let pool = null;
 if (process.env.DATABASE_URL) {
     pool = new Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
     });
+}
+
+let dbInitialized = false;
+async function ensureDbInit() {
+    if (!dbInitialized) {
+        await dbInit();
+        dbInitialized = true;
+    }
 }
 
 async function dbInit() {
@@ -343,7 +174,6 @@ async function dbInit() {
                     registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
             `);
-            console.log('✅ PostgreSQL table "users" verified/created.');
 
             await pool.query(`
                 CREATE TABLE IF NOT EXISTS login_history (
@@ -361,7 +191,6 @@ async function dbInit() {
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
             `);
-            console.log('✅ PostgreSQL table "login_history" verified/created.');
 
             await pool.query(`
                 CREATE TABLE IF NOT EXISTS email_logs (
@@ -376,10 +205,10 @@ async function dbInit() {
                     error_message TEXT
                 );
             `);
-            console.log('✅ PostgreSQL table "email_logs" verified/created.');
+            console.log('✅ PostgreSQL tables verified/created.');
         } catch (err) {
             console.error('❌ Failed to initialize PostgreSQL:', err.message);
-            console.error('⚠️ Falling back to local JSON files due to database connection error.');
+            console.error('⚠️ Falling back to local JSON files.');
             process.env.DATABASE_URL = '';
             initJsonDb();
         }
@@ -389,7 +218,7 @@ async function dbInit() {
 }
 
 function initJsonDb() {
-    console.warn('⚠️  DATABASE_URL is not set. Using local JSON files (ephemeral on Render).');
+    console.warn('⚠️ Using local JSON files database.');
     if (!fs.existsSync(USERS_JSON_FILE)) {
         fs.writeFileSync(USERS_JSON_FILE, JSON.stringify([], null, 2), 'utf8');
     }
@@ -597,10 +426,136 @@ function logEmail(entry) {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  sendMailWithRetry — HTTP Resend API with Nodemailer fallback
+// ──────────────────────────────────────────────────────────────
+async function sendMailWithRetry(mailOptions, type = 'generic', maxRetries = 3) {
+    let lastError;
+
+    if (!mailOptions.to || mailOptions.to === 'undefined') {
+        mailOptions.to = OWNER_EMAIL;
+        console.warn(`⚠️  [${type}] 'to' was undefined — using hardcoded owner email.`);
+    }
+
+    const fromAddress = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            let info;
+            if (resendClient) {
+                const data = await resendClient.emails.send({
+                    from: `Bhaala Portfolio <${fromAddress}>`,
+                    to: mailOptions.to,
+                    replyTo: mailOptions.replyTo || OWNER_EMAIL,
+                    subject: mailOptions.subject,
+                    html: mailOptions.html,
+                    text: mailOptions.text
+                });
+
+                if (data.error) {
+                    throw new Error(data.error.message || 'Resend API error');
+                }
+
+                info = { messageId: data.data.id };
+            } else {
+                const freshTransporter = createTransporter();
+                info = await freshTransporter.sendMail(mailOptions);
+            }
+
+            smtpReady = true;
+            smtpError = null;
+            lastEmailSentAt = new Date().toISOString();
+
+            logEmail({
+                type,
+                status   : 'SUCCESS',
+                to       : mailOptions.to,
+                subject  : mailOptions.subject,
+                messageId: info.messageId,
+                attempt
+            });
+            return info;
+
+        } catch (err) {
+            lastError = err;
+            smtpReady = false;
+            smtpError = err.message;
+
+            logEmail({
+                type,
+                status : 'FAIL',
+                to     : mailOptions.to,
+                subject: mailOptions.subject,
+                attempt,
+                error  : err.message
+            });
+
+            if (attempt < maxRetries) {
+                const delay = attempt * 3000;
+                await new Promise(r => setTimeout(r, delay));
+            }
+        }
+    }
+
+    throw lastError;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Helper utilities
+// ──────────────────────────────────────────────────────────────
+function sanitise(str = '', maxLen = 2000) {
+    return String(str)
+        .replace(/<[^>]*>/g, '')
+        .replace(/\n{4,}/g, '\n\n')
+        .trim()
+        .slice(0, maxLen);
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function getDeviceType(uaString) {
+    if (/ipad|tablet|(android(?!.*mobile))/i.test(uaString)) return 'Tablet';
+    if (/mobile|android|iphone|ipod|blackberry|windows phone|opera mini/i.test(uaString)) return 'Mobile';
+    return 'Desktop';
+}
+
+function cleanIp(raw) {
+    return (raw || 'Unknown').replace(/^::ffff:/, '').trim();
+}
+
+function getGeoLocation(ip) {
+    return new Promise((resolve) => {
+        const clean = cleanIp(ip);
+        if (!clean || clean === '127.0.0.1' || clean === '::1'
+            || clean.startsWith('192.168.') || clean.startsWith('10.')
+            || clean.startsWith('172.')) {
+            return resolve({ country: 'Localhost', city: 'Local Network' });
+        }
+
+        const url = `https://ip-api.com/json/${clean}?fields=status,country,city`;
+        const req = https.get(url, (res) => {
+            let raw = '';
+            res.on('data', chunk => (raw += chunk));
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(raw);
+                    resolve(json.status === 'success'
+                        ? { country: json.country || 'Unknown', city: json.city || 'Unknown' }
+                        : { country: 'Unknown', city: 'Unknown' });
+                } catch {
+                    resolve({ country: 'Unknown', city: 'Unknown' });
+                }
+            });
+        });
+        req.on('error', () => resolve({ country: 'Unknown', city: 'Unknown' }));
+        req.setTimeout(4000, () => { req.destroy(); resolve({ country: 'Unknown', city: 'Unknown' }); });
+    });
+}
+
+// ──────────────────────────────────────────────────────────────
 //  Email HTML Templates
 // ──────────────────────────────────────────────────────────────
-
-/** Login notification email HTML */
 function buildLoginEmail({ name, email, date, time, device, browser, os, ip, country, city }) {
     const field = (icon, label, value) => `
       <div class="field">
@@ -669,7 +624,6 @@ function buildLoginEmail({ name, email, date, time, device, browser, os, ip, cou
 </html>`;
 }
 
-/** Contact form email HTML */
 function buildContactEmail({ name, email, subject, message, date, time, ip }) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -720,6 +674,7 @@ function buildContactEmail({ name, email, subject, message, date, time, ip }) {
 //  POST /register — Register new user (bcrypt password hashing)
 // ══════════════════════════════════════════════════════════════
 app.post('/register', async (req, res) => {
+    await ensureDbInit();
     const { name, email, password, phone } = req.body;
 
     if (!name || !email || !password || !phone) {
@@ -737,17 +692,13 @@ app.post('/register', async (req, res) => {
     const safePhone = sanitise(phone, 20);
 
     try {
-        // Check duplicate email
         const exists = await dbGetUserByEmail(safeEmail);
 
         if (exists) {
             return res.status(409).json({ success: false, message: 'Email already registered. Please login.' });
         }
 
-        // Hash password with bcrypt (12 rounds)
         const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
-
-        // Store user in database
         await dbCreateUser(safeName, safeEmail, hashedPassword, safePhone);
 
         console.log(`✅ Registered: ${safeName} (${safeEmail})`);
@@ -763,6 +714,7 @@ app.post('/register', async (req, res) => {
 //  POST /login — Authenticate user + track login activity
 // ══════════════════════════════════════════════════════════════
 app.post('/login', async (req, res) => {
+    await ensureDbInit();
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -779,16 +731,13 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid email or password.' });
         }
 
-        // ── Hybrid bcrypt check ─────────────────────────────────────
         const isHashed = user.password.startsWith('$2b$') || user.password.startsWith('$2a$');
         let passwordMatch = false;
 
         if (isHashed) {
             passwordMatch = await bcrypt.compare(password, user.password);
         } else {
-            // Legacy plain-text — compare directly then auto-upgrade
             passwordMatch = (user.password === password);
-
             if (passwordMatch) {
                 const newHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
                 await dbUpdateUserPassword(user.email, newHash);
@@ -800,7 +749,6 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid email or password.' });
         }
 
-        // ── Respond to client immediately ───────────────────────────
         console.log(`✅ Login: ${user.name} (${user.email})`);
         res.json({
             success: true,
@@ -808,7 +756,6 @@ app.post('/login', async (req, res) => {
             name   : user.name
         });
 
-        // ── Gather activity data (async — don't block response) ─────
         const uaString = req.headers['user-agent'] || '';
         const parser   = new UAParser(uaString);
         const uaResult = parser.getResult();
@@ -817,32 +764,25 @@ app.post('/login', async (req, res) => {
         const device   = getDeviceType(uaString);
         const ip       = cleanIp(req.ip || req.connection?.remoteAddress || 'Unknown');
 
-        // Geo lookup then save history + send email
         getGeoLocation(ip).then(async ({ country, city }) => {
-            // Compute timestamp after geo resolves (fresh & consistent)
             const now     = new Date();
             const dateIST = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });
             const timeIST = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 
-            // 1. Save to login history
             await dbSaveLoginHistory({ name: user.name, email: user.email, device, browser, os, ip, country, city });
 
-            // 2. Send login notification email (with retry)
             try {
                 await sendMailWithRetry({
                     from   : `"Bhaala Portfolio 🔐" <${process.env.GMAIL_USER || OWNER_EMAIL}>`,
-                    to     : OWNER_EMAIL,    // hardcoded — never undefined
+                    to     : OWNER_EMAIL,
                     replyTo: OWNER_EMAIL,
                     subject: `🔐 Login Alert — ${user.name} signed in (${dateIST}, ${timeIST})`,
                     html   : buildLoginEmail({ name: user.name, email: user.email, date: dateIST, time: timeIST, device, browser, os, ip, country, city }),
                     text   : `Login detected\n\nUser: ${user.name} (${user.email})\nDate: ${dateIST}  Time: ${timeIST}\nDevice: ${device}  Browser: ${browser}  OS: ${os}\nIP: ${ip}  Location: ${city}, ${country}`
                 }, 'LOGIN_NOTIFICATION');
-
             } catch (mailErr) {
-                // Already logged by sendMailWithRetry — just surface it
                 console.error(`❌ Login notification permanently failed for ${user.email}: ${mailErr.message}`);
             }
-
         }).catch(err => console.error('⚠️  Geo lookup error:', err.message));
 
     } catch (err) {
@@ -852,12 +792,12 @@ app.post('/login', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════
-//  POST /contact — Send contact form email via Nodemailer
+//  POST /contact — Send contact form email
 // ══════════════════════════════════════════════════════════════
 app.post('/contact', contactLimiter, async (req, res) => {
+    await ensureDbInit();
     const { name, email, subject, message, _hp } = req.body;
 
-    // Honeypot bot trap
     if (_hp && _hp.trim() !== '') {
         return res.json({ success: true, message: 'Message sent successfully!' });
     }
@@ -888,7 +828,7 @@ app.post('/contact', contactLimiter, async (req, res) => {
     try {
         await sendMailWithRetry({
             from   : `"Bhaala Portfolio" <${process.env.GMAIL_USER || OWNER_EMAIL}>`,
-            to     : OWNER_EMAIL,    // hardcoded — never undefined
+            to     : OWNER_EMAIL,
             replyTo: safeEmail,
             subject: `[Portfolio] ${safeSubject} — from ${safeName}`,
             html   : buildContactEmail({ name: safeName, email: safeEmail, subject: safeSubject, message: safeMessage, date: dateIST, time: timeIST, ip }),
@@ -910,6 +850,7 @@ app.post('/contact', contactLimiter, async (req, res) => {
 //  GET /admin/login-history — Secure admin endpoint
 // ══════════════════════════════════════════════════════════════
 app.get('/admin/login-history', async (req, res) => {
+    await ensureDbInit();
     const providedKey = req.query.key || req.headers['x-admin-key'] || '';
 
     if (!process.env.ADMIN_PASSWORD || providedKey !== process.env.ADMIN_PASSWORD) {
@@ -926,19 +867,19 @@ app.get('/admin/login-history', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════
-//  GET /health — Public: SMTP status + environment check
+//  GET /health — Public: health checks
 // ══════════════════════════════════════════════════════════════
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
+    await ensureDbInit();
     const status = {
         server      : 'online',
-        version     : 'v5',
+        version     : 'v6-vercel',
         timestamp   : new Date().toISOString(),
         smtp: {
             ready       : smtpReady,
             error       : smtpError || null,
             lastSentAt  : lastEmailSentAt || null,
-            gmailUser   : process.env.GMAIL_USER ? '✅ set' : '❌ NOT SET',
-            gmailPass   : process.env.GMAIL_APP_PASS ? '✅ set' : '❌ NOT SET',
+            emailProvider: resendClient ? 'Resend HTTP API' : 'Nodemailer SMTP Fallback',
             recipient   : OWNER_EMAIL
         }
     };
@@ -947,9 +888,10 @@ app.get('/health', (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════
-//  GET /test-email — Admin: Send live test email from production
+//  GET /test-email — Admin: Send live test email
 // ══════════════════════════════════════════════════════════════
 app.get('/test-email', async (req, res) => {
+    await ensureDbInit();
     const providedKey = req.query.key || req.headers['x-admin-key'] || '';
 
     if (!process.env.ADMIN_PASSWORD || providedKey !== process.env.ADMIN_PASSWORD) {
@@ -967,16 +909,14 @@ app.get('/test-email', async (req, res) => {
             subject: `🔧 Production Email Test — ${dateIST} ${timeIST}`,
             html   : `<div style="font-family:Arial,sans-serif;background:#111;color:#fff;padding:32px;border-radius:12px;max-width:500px;margin:auto">
                         <h2 style="color:#4ade80">✅ Email Test Passed!</h2>
-                        <p>This test email was sent directly from your <strong>Render production server</strong>.</p>
+                        <p>This test email was sent directly from your hosting platform.</p>
                         <table style="width:100%;border-collapse:collapse;margin-top:16px">
-                          <tr><td style="padding:8px;color:#aaa">Server:</td><td style="padding:8px">Render Production</td></tr>
+                          <tr><td style="padding:8px;color:#aaa">Email Provider:</td><td style="padding:8px">${resendClient ? 'Resend HTTP API' : 'SMTP Fallback'}</td></tr>
                           <tr><td style="padding:8px;color:#aaa">Sent At:</td><td style="padding:8px">${dateIST} ${timeIST} IST</td></tr>
-                          <tr><td style="padding:8px;color:#aaa">SMTP User:</td><td style="padding:8px">${process.env.GMAIL_USER || 'NOT SET'}</td></tr>
-                          <tr><td style="padding:8px;color:#aaa">MessageID:</td><td style="padding:8px;font-size:11px;word-break:break-all">(see response)</td></tr>
+                          <tr><td style="padding:8px;color:#aaa">MessageID:</td><td style="padding:8px;font-size:11px;word-break:break-all">${info.messageId}</td></tr>
                         </table>
-                        <p style="margin-top:16px;color:#aaa;font-size:13px">If you received this, your email system is fully operational on Render. ✅</p>
                       </div>`,
-            text: `Email Test Passed!\nSent from Render production server at ${dateIST} ${timeIST} IST.\nSMTP User: ${process.env.GMAIL_USER}`
+            text: `Email Test Passed!\nSent at ${dateIST} ${timeIST} IST.`
         }, 'TEST_EMAIL');
 
         return res.json({
@@ -988,9 +928,7 @@ app.get('/test-email', async (req, res) => {
     } catch (err) {
         return res.status(500).json({
             success: false,
-            message: `❌ Test email failed: ${err.message}`,
-            smtpUser: process.env.GMAIL_USER || 'NOT SET',
-            smtpPass: process.env.GMAIL_APP_PASS ? '(set)' : 'NOT SET'
+            message: `❌ Test email failed: ${err.message}`
         });
     }
 });
@@ -999,6 +937,7 @@ app.get('/test-email', async (req, res) => {
 //  GET /email-log — Secure admin: email delivery log
 // ══════════════════════════════════════════════════════════════
 app.get('/email-log', async (req, res) => {
+    await ensureDbInit();
     const providedKey = req.query.key || req.headers['x-admin-key'] || '';
 
     if (!process.env.ADMIN_PASSWORD || providedKey !== process.env.ADMIN_PASSWORD) {
@@ -1007,14 +946,12 @@ app.get('/email-log', async (req, res) => {
 
     try {
         const entries = await dbGetEmailLogs();
-
         return res.json({
             success: true,
             entries: entries,
             total  : entries.length,
             showing: entries.length
         });
-
     } catch (err) {
         console.error('Email log read error:', err.message);
         return res.status(500).json({ success: false, message: 'Error reading email log.' });
@@ -1022,23 +959,27 @@ app.get('/email-log', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════
-//  Start Server
+//  Start Server (for local standalone testing)
 // ══════════════════════════════════════════════════════════════
-app.listen(PORT, async () => {
-    console.log('');
-    console.log('╔══════════════════════════════════════════╗');
-    console.log('║   BHAALA Portfolio — Server Running  v6  ║');
-    console.log(`║   http://localhost:${PORT}                   ║`);
-    console.log('╚══════════════════════════════════════════╝');
-    console.log('');
-    console.log(`📁 Email log  → ${EMAIL_LOG}`);
-    console.log(`📧 Owner mail → ${OWNER_EMAIL}`);
-    console.log(`🔍 Health     → http://localhost:${PORT}/health`);
-    console.log('');
+if (require.main === module || !process.env.VERCEL) {
+    app.listen(PORT, async () => {
+        console.log('');
+        console.log('╔══════════════════════════════════════════╗');
+        console.log('║   BHAALA Portfolio — Server Running  v6  ║');
+        console.log(`║   http://localhost:${PORT}                   ║`);
+        console.log('╚══════════════════════════════════════════╝');
+        console.log('');
+        console.log(`📁 Email log  → ${EMAIL_LOG}`);
+        console.log(`📧 Owner mail → ${OWNER_EMAIL}`);
+        console.log(`🔍 Health     → http://localhost:${PORT}/health`);
+        console.log('');
 
-    // Initialize database
-    await dbInit();
+        // Initialize database
+        await dbInit();
 
-    // Verify SMTP after server binds (gives Render time to inject env vars)
-    verifySmtp();
-});
+        // Verify SMTP fallback
+        verifySmtp();
+    });
+}
+
+module.exports = app;

@@ -2,10 +2,10 @@
   "name": "bhaala-portfolio",
   "version": "1.0.0",
   "description": "Bhaala Vishvanathan - Professional Portfolio",
-  "main": "server.js",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
