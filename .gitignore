@@ -16,6 +16,10 @@ backend/*.pyc
 # User data — sensitive, never commit
 users.xlsx
 backend/registered_users.xlsx
+login_history.xlsx
+users.json
+login_history.json
+email_log.jsonl
 
 # Mac
 .DS_Store

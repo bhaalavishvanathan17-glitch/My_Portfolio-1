@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <!-- Session Guard: redirect to login if not authenticated -->
     <script>
-        if (!sessionStorage.getItem('bhaala_logged_in')) {
+        if (!localStorage.getItem('bhaala_logged_in') && !sessionStorage.getItem('bhaala_logged_in')) {
             window.location.replace('login.html');
         }
     </script>
@@ -132,5 +132,23 @@
         © 2026 <span>Bhaalavishvanathan</span> — Built with passion & purpose.
     </footer>
 
+    <!-- Script to handle dynamic Login/Logout in navbar -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.querySelector('.nav-login-btn');
+            if (loginBtn && (localStorage.getItem('bhaala_logged_in') || sessionStorage.getItem('bhaala_logged_in'))) {
+                loginBtn.textContent = 'Logout';
+                loginBtn.href = '#';
+                loginBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('bhaala_logged_in');
+                    localStorage.removeItem('bhaala_user');
+                    sessionStorage.removeItem('bhaala_logged_in');
+                    sessionStorage.removeItem('bhaala_user');
+                    window.location.replace('login.html');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

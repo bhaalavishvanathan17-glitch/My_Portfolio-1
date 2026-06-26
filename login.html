@@ -459,14 +459,24 @@
 
             if (data.success) {
                 showMsg('login-msg', '✅ ' + data.message, 'success');
+                localStorage.setItem('bhaala_logged_in', 'true');
+                localStorage.setItem('bhaala_user', data.name || email);
                 sessionStorage.setItem('bhaala_logged_in', 'true');
                 sessionStorage.setItem('bhaala_user', data.name || email);
                 setTimeout(() => { window.location.href = 'Bhaala.html'; }, 1200);
             } else {
                 showMsg('login-msg', '❌ ' + data.message, 'error');
+                localStorage.removeItem('bhaala_logged_in');
+                localStorage.removeItem('bhaala_user');
+                sessionStorage.removeItem('bhaala_logged_in');
+                sessionStorage.removeItem('bhaala_user');
             }
         } catch {
             showMsg('login-msg', '❌ Cannot connect to server.', 'error');
+            localStorage.removeItem('bhaala_logged_in');
+            localStorage.removeItem('bhaala_user');
+            sessionStorage.removeItem('bhaala_logged_in');
+            sessionStorage.removeItem('bhaala_user');
         } finally {
             setLoading('login-btn', false, 'Login →');
         }

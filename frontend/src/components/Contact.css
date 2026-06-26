@@ -110,6 +110,28 @@ input:-webkit-autofill {
 }
 .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
+/* EmailJS status banners */
+.ejs-banner {
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+.ejs-success {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+.ejs-error {
+  background: rgba(248, 19, 19, 0.12);
+  border: 1px solid rgba(248, 19, 19, 0.35);
+  color: #fca5a5;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
 @media (max-width: 640px) {
   .contact-form-wrap { padding: 28px 24px; }
   .form-row { grid-template-columns: 1fr; }

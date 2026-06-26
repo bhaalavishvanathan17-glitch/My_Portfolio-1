@@ -1,70 +1,63 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 import './Contact.css';
-import { supabase } from '../lib/supabaseClient';
+
+// ── EmailJS credentials (set these in frontend/.env) ──────────────────────────
+// VITE_EMAILJS_SERVICE_ID   = your EmailJS service ID  (e.g. service_xxxxxxx)
+// VITE_EMAILJS_TEMPLATE_ID  = your EmailJS template ID (e.g. template_xxxxxxx)
+// VITE_EMAILJS_PUBLIC_KEY   = your EmailJS public key  (e.g. aBcDeFgHiJkLmNoP)
+const EJS_SERVICE  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EJS_TEMPLATE = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EJS_KEY      = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const LINKS = [
-  { icon: '📧', label: 'Email Me', href: 'mailto:bhaalavishvanathan17@gmail.com', type: 'email' },
-  { icon: '💼', label: 'LinkedIn', href: 'https://www.linkedin.com/in/bhaalavishvanathan-c-59576a312/', type: 'social' },
-  { icon: '🐙', label: 'GitHub', href: 'https://github.com/bhaalavishvanathan17-glitch', type: 'social' },
-  { icon: '📞', label: 'Call', href: 'tel:+919361000742', type: 'phone' },
-  { icon: '💬', label: 'WhatsApp', href: 'https://wa.me/919361000742', type: 'chat' },
+  { icon: '📧', label: 'Email Me',  href: 'mailto:bhaalavishvanathan17@gmail.com', type: 'email'  },
+  { icon: '💼', label: 'LinkedIn',  href: 'https://www.linkedin.com/in/bhaalavishvanathan-c-59576a312/', type: 'social' },
+  { icon: '🐙', label: 'GitHub',    href: 'https://github.com/bhaalavishvanathan17-glitch', type: 'social' },
+  { icon: '📞', label: 'Call',      href: 'tel:+919361000742', type: 'phone'  },
+  { icon: '💬', label: 'WhatsApp',  href: 'https://wa.me/919361000742', type: 'chat'   },
   { icon: '📸', label: 'Instagram', href: 'https://www.instagram.com/_bhaala_/', type: 'social' },
 ];
 
 export default function Contact() {
+  const formRef = useRef(null);
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
+  const [errorMsg, setErrorMsg] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target));
+    setErrorMsg('');
+
+    // Guard: make sure EmailJS keys are configured
+    if (!EJS_SERVICE || !EJS_TEMPLATE || !EJS_KEY) {
+      setErrorMsg(
+        '⚠️ Email not configured yet. Please add VITE_EMAILJS_SERVICE_ID, ' +
+        'VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY to your frontend/.env file.'
+      );
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 6000);
+      return;
+    }
+
     setStatus('sending');
 
-    let saved = false;
-
-    // ── Step 1: Save to Supabase directly (primary storage) ──
-    if (supabase) {
-      try {
-        const { error } = await supabase
-          .from('contacts')
-          .insert({ name: data.name, email: data.email, message: data.message });
-        if (!error) {
-          saved = true;
-          console.log('✅ Contact saved to Supabase');
-        } else {
-          console.warn('Supabase insert error:', error.message);
-        }
-      } catch (err) {
-        console.warn('Supabase insert failed:', err);
-      }
-    }
-
-    // ── Step 2: Ping backend to send email notification ──
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-      const res = await fetch(`${apiUrl}/api/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (res.ok) saved = true; // count as success even if Supabase was slow
-    } catch {
-      console.warn('Backend email notification failed — data already in Supabase.');
-    }
-
-    if (saved) {
+      await emailjs.sendForm(EJS_SERVICE, EJS_TEMPLATE, formRef.current, { publicKey: EJS_KEY });
       setStatus('sent');
-      e.target.reset();
-    } else {
+      formRef.current.reset();
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      setErrorMsg(`❌ Failed to send: ${err?.text || err?.message || 'Unknown error'}`);
       setStatus('error');
     }
 
-    setTimeout(() => setStatus('idle'), 4000);
+    setTimeout(() => { setStatus('idle'); setErrorMsg(''); }, 5000);
   }
 
   const btnLabel = {
     idle:    '🚀 Send Message',
-    sending: 'Sending…',
-    sent:    '✅ Sent!',
+    sending: '⏳ Sending…',
+    sent:    '✅ Message Sent!',
     error:   '❌ Failed — try again',
   }[status];
 
@@ -100,19 +93,33 @@ export default function Contact() {
         {/* Contact form */}
         <div className="contact-form-wrap animate-fade-up delay-2">
           <h3>Send a Message</h3>
-          <form className="contact-form" onSubmit={handleSubmit}>
+
+          {/* Status banners */}
+          {status === 'sent' && (
+            <div className="ejs-banner ejs-success">
+              ✅ Your message has been sent! I'll get back to you soon. 🙏
+            </div>
+          )}
+          {status === 'error' && errorMsg && (
+            <div className="ejs-banner ejs-error">{errorMsg}</div>
+          )}
+
+          <form className="contact-form" ref={formRef} onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-field">
                 <label htmlFor="cf-name">Full Name</label>
-                <input id="cf-name" name="name" type="text" placeholder="Your name" required />
+                {/* name="from_name" maps to {{from_name}} in EmailJS template */}
+                <input id="cf-name" name="from_name" type="text" placeholder="Your name" required />
               </div>
               <div className="form-field">
                 <label htmlFor="cf-email">Email</label>
-                <input id="cf-email" name="email" type="email" placeholder="you@example.com" required />
+                {/* name="reply_to" maps to {{reply_to}} in EmailJS template */}
+                <input id="cf-email" name="reply_to" type="email" placeholder="you@example.com" required />
               </div>
             </div>
             <div className="form-field">
               <label htmlFor="cf-message">Message</label>
+              {/* name="message" maps to {{message}} in EmailJS template */}
               <textarea id="cf-message" name="message" rows={5} placeholder="Write your message here…" required />
             </div>
             <button

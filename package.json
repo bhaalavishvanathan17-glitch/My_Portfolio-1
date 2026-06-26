@@ -15,6 +15,8 @@
     "express": "^4.18.2",
     "express-rate-limit": "^8.5.2",
     "nodemailer": "^9.0.1",
+    "pg": "^8.22.0",
+    "resend": "^6.14.0",
     "ua-parser-js": "^2.0.10"
   }
 }

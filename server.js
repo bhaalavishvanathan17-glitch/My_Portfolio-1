@@ -39,7 +39,7 @@ require('dotenv').config();
 
 const express    = require('express');
 const cors       = require('cors');
-const ExcelJS    = require('exceljs');
+const { Pool }   = require('pg');
 const path       = require('path');
 const fs         = require('fs');
 const https      = require('https');
@@ -52,18 +52,12 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 
 // ──────────────────────────────────────────────────────────────
-//  File paths & column maps
+//  File paths & DB configs
 // ──────────────────────────────────────────────────────────────
 
-const USERS_FILE   = path.join(__dirname, 'users.xlsx');
-const HIST_FILE    = path.join(__dirname, 'login_history.xlsx');
-const EMAIL_LOG    = path.join(__dirname, 'email_log.jsonl');   // NEW: persistent email log
-
-const U_COL     = { NAME: 1, EMAIL: 2, PASSWORD: 3, PHONE: 4, REGISTERED_AT: 5 };
-const U_HEADERS = ['Full Name', 'Email', 'Password', 'Phone', 'Registered At'];
-
-const H_COL     = { NAME: 1, EMAIL: 2, DATE: 3, TIME: 4, DEVICE: 5, BROWSER: 6, OS: 7, IP: 8, COUNTRY: 9, CITY: 10 };
-const H_HEADERS = ['Name', 'Email', 'Date (IST)', 'Time (IST)', 'Device Type', 'Browser', 'OS', 'IP Address', 'Country', 'City'];
+const USERS_JSON_FILE = path.join(__dirname, 'users.json');
+const HIST_JSON_FILE  = path.join(__dirname, 'login_history.json');
+const EMAIL_LOG       = path.join(__dirname, 'email_log.jsonl');
 
 const BCRYPT_ROUNDS = 12;
 const MAX_EMAIL_LOG_LINES = 500;   // keep last 500 entries in memory trim
@@ -321,70 +315,285 @@ function getGeoLocation(ip) {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  Excel workbook helpers
+//  Database connection & Helpers
 // ──────────────────────────────────────────────────────────────
 
-/** Get or create the Users workbook + worksheet */
-async function getUsersWorkbook() {
-    const wb = new ExcelJS.Workbook();
-    if (fs.existsSync(USERS_FILE)) await wb.xlsx.readFile(USERS_FILE);
-
-    let ws = wb.getWorksheet('Users');
-    if (!ws) {
-        ws = wb.addWorksheet('Users');
-        const hdr = ws.addRow(U_HEADERS);
-        hdr.font      = { bold: true, color: { argb: 'FFFFFFFF' } };
-        hdr.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6C0B0B' } };
-        hdr.alignment = { horizontal: 'center' };
-        ws.getColumn(U_COL.NAME).width          = 25;
-        ws.getColumn(U_COL.EMAIL).width         = 32;
-        ws.getColumn(U_COL.PASSWORD).width      = 65;
-        ws.getColumn(U_COL.PHONE).width         = 18;
-        ws.getColumn(U_COL.REGISTERED_AT).width = 26;
-        await wb.xlsx.writeFile(USERS_FILE);
-    }
-    return { wb, ws };
+let pool = null;
+if (process.env.DATABASE_URL) {
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+    });
 }
 
-/** Get or create the Login History workbook + worksheet */
-async function getHistoryWorkbook() {
-    const wb = new ExcelJS.Workbook();
-    if (fs.existsSync(HIST_FILE)) await wb.xlsx.readFile(HIST_FILE);
+async function dbInit() {
+    if (process.env.DATABASE_URL) {
+        console.log(`🔌 Attempting to connect to PostgreSQL...`);
+        try {
+            await pool.query('SELECT NOW()');
+            console.log('✅ PostgreSQL database connected successfully.');
 
-    let ws = wb.getWorksheet('Login History');
-    if (!ws) {
-        ws = wb.addWorksheet('Login History');
-        const hdr = ws.addRow(H_HEADERS);
-        hdr.font      = { bold: true, color: { argb: 'FFFFFFFF' } };
-        hdr.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6C0B0B' } };
-        hdr.alignment = { horizontal: 'center' };
-        [25, 32, 16, 12, 12, 20, 20, 18, 18, 18].forEach((w, i) => {
-            ws.getColumn(i + 1).width = w;
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    phone VARCHAR(50) NOT NULL,
+                    registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+            console.log('✅ PostgreSQL table "users" verified/created.');
+
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS login_history (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    login_date VARCHAR(50) NOT NULL,
+                    login_time VARCHAR(50) NOT NULL,
+                    device VARCHAR(100) NOT NULL,
+                    browser VARCHAR(100) NOT NULL,
+                    os VARCHAR(100) NOT NULL,
+                    ip VARCHAR(50) NOT NULL,
+                    country VARCHAR(100) NOT NULL,
+                    city VARCHAR(100) NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+            console.log('✅ PostgreSQL table "login_history" verified/created.');
+
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS email_logs (
+                    id SERIAL PRIMARY KEY,
+                    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    type VARCHAR(50) NOT NULL,
+                    recipient VARCHAR(255) NOT NULL,
+                    subject VARCHAR(255) NOT NULL,
+                    status VARCHAR(50) NOT NULL,
+                    message_id VARCHAR(255),
+                    attempt INT NOT NULL,
+                    error_message TEXT
+                );
+            `);
+            console.log('✅ PostgreSQL table "email_logs" verified/created.');
+        } catch (err) {
+            console.error('❌ Failed to initialize PostgreSQL:', err.message);
+            console.error('⚠️ Falling back to local JSON files due to database connection error.');
+            process.env.DATABASE_URL = '';
+            initJsonDb();
+        }
+    } else {
+        initJsonDb();
+    }
+}
+
+function initJsonDb() {
+    console.warn('⚠️  DATABASE_URL is not set. Using local JSON files (ephemeral on Render).');
+    if (!fs.existsSync(USERS_JSON_FILE)) {
+        fs.writeFileSync(USERS_JSON_FILE, JSON.stringify([], null, 2), 'utf8');
+    }
+    if (!fs.existsSync(HIST_JSON_FILE)) {
+        fs.writeFileSync(HIST_JSON_FILE, JSON.stringify([], null, 2), 'utf8');
+    }
+    if (!fs.existsSync(EMAIL_LOG)) {
+        fs.writeFileSync(EMAIL_LOG, '', 'utf8');
+    }
+}
+
+async function dbGetUserByEmail(email) {
+    const cleanEmail = email.toLowerCase().trim();
+    if (process.env.DATABASE_URL) {
+        const res = await pool.query('SELECT * FROM users WHERE LOWER(email) = $1', [cleanEmail]);
+        return res.rows[0] || null;
+    } else {
+        const users = JSON.parse(fs.readFileSync(USERS_JSON_FILE, 'utf8'));
+        const user = users.find(u => u.email.toLowerCase() === cleanEmail);
+        return user || null;
+    }
+}
+
+async function dbUpdateUserPassword(email, newPasswordHash) {
+    const cleanEmail = email.toLowerCase().trim();
+    if (process.env.DATABASE_URL) {
+        await pool.query('UPDATE users SET password = $1 WHERE LOWER(email) = $2', [newPasswordHash, cleanEmail]);
+    } else {
+        const users = JSON.parse(fs.readFileSync(USERS_JSON_FILE, 'utf8'));
+        const idx = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
+        if (idx !== -1) {
+            users[idx].password = newPasswordHash;
+            fs.writeFileSync(USERS_JSON_FILE, JSON.stringify(users, null, 2), 'utf8');
+        }
+    }
+}
+
+async function dbCreateUser(name, email, hashedPassword, phone) {
+    const cleanEmail = email.toLowerCase().trim();
+    if (process.env.DATABASE_URL) {
+        await pool.query(
+            'INSERT INTO users (name, email, password, phone, registered_at) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)',
+            [name, cleanEmail, hashedPassword, phone]
+        );
+    } else {
+        const users = JSON.parse(fs.readFileSync(USERS_JSON_FILE, 'utf8'));
+        users.push({
+            name,
+            email: cleanEmail,
+            password: hashedPassword,
+            phone,
+            registered_at: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
         });
-        await wb.xlsx.writeFile(HIST_FILE);
+        fs.writeFileSync(USERS_JSON_FILE, JSON.stringify(users, null, 2), 'utf8');
     }
-    return { wb, ws };
 }
 
-/**
- * Append a login event to login_history.xlsx.
- * Non-fatal: logs error but does not crash the login response.
- */
-async function saveLoginHistory({ name, email, device, browser, os, ip, country, city }) {
+async function dbSaveLoginHistory({ name, email, device, browser, os, ip, country, city }) {
     try {
-        const { wb, ws } = await getHistoryWorkbook();
+        const cleanEmail = email.toLowerCase().trim();
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
         const timeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
 
-        const row = ws.addRow([name, email, dateStr, timeStr, device, browser, os, ip, country, city]);
-        row.alignment = { vertical: 'middle' };
-
-        await wb.xlsx.writeFile(HIST_FILE);
-        console.log(`💾 Login history saved for: ${name} (${email})`);
+        if (process.env.DATABASE_URL) {
+            await pool.query(
+                `INSERT INTO login_history (name, email, login_date, login_time, device, browser, os, ip, country, city, created_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)`,
+                [name, cleanEmail, dateStr, timeStr, device, browser, os, ip, country, city]
+            );
+        } else {
+            const hist = JSON.parse(fs.readFileSync(HIST_JSON_FILE, 'utf8'));
+            hist.push({
+                name,
+                email: cleanEmail,
+                login_date: dateStr,
+                login_time: timeStr,
+                device,
+                browser,
+                os,
+                ip,
+                country,
+                city
+            });
+            fs.writeFileSync(HIST_JSON_FILE, JSON.stringify(hist, null, 2), 'utf8');
+        }
+        console.log(`💾 Login history saved for: ${name} (${cleanEmail})`);
     } catch (err) {
         console.error('⚠️  Login history save error:', err.message);
     }
+}
+
+async function dbGetLoginHistory() {
+    if (process.env.DATABASE_URL) {
+        const res = await pool.query('SELECT * FROM login_history ORDER BY id DESC');
+        return res.rows.map(row => ({
+            name: row.name,
+            email: row.email,
+            date: row.login_date,
+            time: row.login_time,
+            device: row.device,
+            browser: row.browser,
+            os: row.os,
+            ip: row.ip,
+            country: row.country,
+            city: row.city
+        }));
+    } else {
+        const hist = JSON.parse(fs.readFileSync(HIST_JSON_FILE, 'utf8'));
+        const reversed = [...hist].reverse();
+        return reversed.map(row => ({
+            name: row.name,
+            email: row.email,
+            date: row.login_date,
+            time: row.login_time,
+            device: row.device,
+            browser: row.browser,
+            os: row.os,
+            ip: row.ip,
+            country: row.country,
+            city: row.city
+        }));
+    }
+}
+
+async function dbLogEmail(entry) {
+    const timestamp = new Date().toISOString();
+    const type = entry.type || 'generic';
+    const recipient = entry.to || OWNER_EMAIL;
+    const subject = entry.subject || '';
+    const status = entry.status || 'UNKNOWN';
+    const messageId = entry.messageId || null;
+    const attempt = entry.attempt || 1;
+    const errorMessage = entry.error || null;
+
+    if (status === 'SUCCESS' || status === 'OK') {
+        if (type !== 'STARTUP') {
+            console.log(`📧 [${ts()}] [${type}] ✅ Email sent (attempt ${attempt}) → ${recipient} | ID: ${messageId}`);
+        }
+    } else {
+        console.error(`❌ [${ts()}] [${type}] Action failed: ${errorMessage || 'Unknown error'}`);
+    }
+
+    if (process.env.DATABASE_URL) {
+        try {
+            await pool.query(
+                `INSERT INTO email_logs (timestamp, type, recipient, subject, status, message_id, attempt, error_message)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                [timestamp, type, recipient, subject, status, messageId, attempt, errorMessage]
+            );
+        } catch (err) {
+            console.error('⚠️  Could not write email log to PG:', err.message);
+        }
+    } else {
+        const line = JSON.stringify({
+            timestamp,
+            type,
+            to: recipient,
+            subject,
+            status,
+            messageId,
+            attempt,
+            error: errorMessage
+        }) + '\n';
+        try {
+            fs.appendFileSync(EMAIL_LOG, line, 'utf8');
+        } catch (e) {
+            console.error('⚠️  Could not write email_log.jsonl:', e.message);
+        }
+    }
+}
+
+async function dbGetEmailLogs() {
+    if (process.env.DATABASE_URL) {
+        const res = await pool.query('SELECT * FROM email_logs ORDER BY id DESC LIMIT 200');
+        return res.rows.map(row => ({
+            timestamp: row.timestamp,
+            type: row.type,
+            to: row.recipient,
+            subject: row.subject,
+            status: row.status,
+            messageId: row.message_id,
+            attempt: row.attempt,
+            error: row.error_message
+        }));
+    } else {
+        if (!fs.existsSync(EMAIL_LOG)) return [];
+        try {
+            const raw = fs.readFileSync(EMAIL_LOG, 'utf8');
+            const lines = raw.trim().split('\n').filter(Boolean);
+            const entries = lines.map(line => {
+                try { return JSON.parse(line); } catch { return null; }
+            }).filter(Boolean);
+            entries.reverse();
+            return entries.slice(0, 200);
+        } catch (err) {
+            console.error('Email log read error:', err.message);
+            return [];
+        }
+    }
+}
+
+function logEmail(entry) {
+    dbLogEmail(entry);
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -528,15 +737,8 @@ app.post('/register', async (req, res) => {
     const safePhone = sanitise(phone, 20);
 
     try {
-        const { wb, ws } = await getUsersWorkbook();
-
         // Check duplicate email
-        let exists = false;
-        ws.eachRow((row, n) => {
-            if (n === 1) return;
-            const cell = (row.getCell(U_COL.EMAIL).value || '').toString().toLowerCase();
-            if (cell === safeEmail) exists = true;
-        });
+        const exists = await dbGetUserByEmail(safeEmail);
 
         if (exists) {
             return res.status(409).json({ success: false, message: 'Email already registered. Please login.' });
@@ -545,15 +747,9 @@ app.post('/register', async (req, res) => {
         // Hash password with bcrypt (12 rounds)
         const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
-        ws.addRow([
-            safeName,
-            safeEmail,
-            hashedPassword,
-            safePhone,
-            new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
-        ]);
+        // Store user in database
+        await dbCreateUser(safeName, safeEmail, hashedPassword, safePhone);
 
-        await wb.xlsx.writeFile(USERS_FILE);
         console.log(`✅ Registered: ${safeName} (${safeEmail})`);
         return res.json({ success: true, message: 'Registration successful! You can now login.' });
 
@@ -575,28 +771,9 @@ app.post('/login', async (req, res) => {
     if (!isValidEmail(email)) {
         return res.status(400).json({ success: false, message: 'Invalid email format.' });
     }
-    if (!fs.existsSync(USERS_FILE)) {
-        return res.status(401).json({ success: false, message: 'No users found. Please register first.' });
-    }
 
     try {
-        const { wb, ws } = await getUsersWorkbook();
-
-        // Collect all user rows for comparison
-        const users = [];
-        ws.eachRow((row, rowNumber) => {
-            if (rowNumber === 1) return;
-            users.push({
-                rowNumber,
-                name    : (row.getCell(U_COL.NAME).value     || '').toString(),
-                email   : (row.getCell(U_COL.EMAIL).value    || '').toString().toLowerCase(),
-                password: (row.getCell(U_COL.PASSWORD).value || '').toString(),
-                row
-            });
-        });
-
-        // Find the user by email
-        const user = users.find(u => u.email === email.toLowerCase());
+        const user = await dbGetUserByEmail(email);
 
         if (!user) {
             return res.status(401).json({ success: false, message: 'Invalid email or password.' });
@@ -614,8 +791,7 @@ app.post('/login', async (req, res) => {
 
             if (passwordMatch) {
                 const newHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-                ws.getRow(user.rowNumber).getCell(U_COL.PASSWORD).value = newHash;
-                await wb.xlsx.writeFile(USERS_FILE);
+                await dbUpdateUserPassword(user.email, newHash);
                 console.log(`🔒 Auto-upgraded password to bcrypt for: ${user.email}`);
             }
         }
@@ -648,8 +824,8 @@ app.post('/login', async (req, res) => {
             const dateIST = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });
             const timeIST = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 
-            // 1. Save to login_history.xlsx
-            await saveLoginHistory({ name: user.name, email: user.email, device, browser, os, ip, country, city });
+            // 1. Save to login history
+            await dbSaveLoginHistory({ name: user.name, email: user.email, device, browser, os, ip, country, city });
 
             // 2. Send login notification email (with retry)
             try {
@@ -740,33 +916,9 @@ app.get('/admin/login-history', async (req, res) => {
         return res.status(401).json({ success: false, message: 'Unauthorized.' });
     }
 
-    if (!fs.existsSync(HIST_FILE)) {
-        return res.json({ success: true, records: [], total: 0 });
-    }
-
     try {
-        const { ws } = await getHistoryWorkbook();
-        const records = [];
-
-        ws.eachRow((row, n) => {
-            if (n === 1) return;
-            records.push({
-                name   : (row.getCell(H_COL.NAME).value    || '').toString(),
-                email  : (row.getCell(H_COL.EMAIL).value   || '').toString(),
-                date   : (row.getCell(H_COL.DATE).value    || '').toString(),
-                time   : (row.getCell(H_COL.TIME).value    || '').toString(),
-                device : (row.getCell(H_COL.DEVICE).value  || '').toString(),
-                browser: (row.getCell(H_COL.BROWSER).value || '').toString(),
-                os     : (row.getCell(H_COL.OS).value      || '').toString(),
-                ip     : (row.getCell(H_COL.IP).value      || '').toString(),
-                country: (row.getCell(H_COL.COUNTRY).value || '').toString(),
-                city   : (row.getCell(H_COL.CITY).value    || '').toString()
-            });
-        });
-
-        records.reverse(); // Most recent first
+        const records = await dbGetLoginHistory();
         return res.json({ success: true, records, total: records.length });
-
     } catch (err) {
         console.error('Admin history error:', err.message);
         return res.status(500).json({ success: false, message: 'Error reading login history.' });
@@ -846,33 +998,21 @@ app.get('/test-email', async (req, res) => {
 // ══════════════════════════════════════════════════════════════
 //  GET /email-log — Secure admin: email delivery log
 // ══════════════════════════════════════════════════════════════
-app.get('/email-log', (req, res) => {
+app.get('/email-log', async (req, res) => {
     const providedKey = req.query.key || req.headers['x-admin-key'] || '';
 
     if (!process.env.ADMIN_PASSWORD || providedKey !== process.env.ADMIN_PASSWORD) {
         return res.status(401).json({ success: false, message: 'Unauthorized.' });
     }
 
-    if (!fs.existsSync(EMAIL_LOG)) {
-        return res.json({ success: true, entries: [], total: 0 });
-    }
-
     try {
-        const raw  = fs.readFileSync(EMAIL_LOG, 'utf8');
-        const lines = raw.trim().split('\n').filter(Boolean);
-        const entries = lines.map(line => {
-            try { return JSON.parse(line); } catch { return null; }
-        }).filter(Boolean);
-
-        // Most recent first, cap at 200
-        entries.reverse();
-        const sliced = entries.slice(0, 200);
+        const entries = await dbGetEmailLogs();
 
         return res.json({
             success: true,
-            entries: sliced,
+            entries: entries,
             total  : entries.length,
-            showing: sliced.length
+            showing: entries.length
         });
 
     } catch (err) {
@@ -884,18 +1024,20 @@ app.get('/email-log', (req, res) => {
 // ══════════════════════════════════════════════════════════════
 //  Start Server
 // ══════════════════════════════════════════════════════════════
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log('');
     console.log('╔══════════════════════════════════════════╗');
-    console.log('║   BHAALA Portfolio — Server Running  v5  ║');
+    console.log('║   BHAALA Portfolio — Server Running  v6  ║');
     console.log(`║   http://localhost:${PORT}                   ║`);
     console.log('╚══════════════════════════════════════════╝');
     console.log('');
     console.log(`📁 Email log  → ${EMAIL_LOG}`);
-    console.log(`📊 Login hist → ${HIST_FILE}`);
     console.log(`📧 Owner mail → ${OWNER_EMAIL}`);
     console.log(`🔍 Health     → http://localhost:${PORT}/health`);
     console.log('');
+
+    // Initialize database
+    await dbInit();
 
     // Verify SMTP after server binds (gives Render time to inject env vars)
     verifySmtp();
