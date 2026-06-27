@@ -239,6 +239,97 @@ body {
 
 .hero-img-badge span { font-size: 24px; font-weight: 800; display: block; }
 
+/* ================= RESUME SECTION ================= */
+.resume-section {
+    padding: 60px 10%;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 80, 80, 0.1);
+    border-bottom: 1px solid rgba(255, 80, 80, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.resume-container {
+    max-width: 1100px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 80, 80, 0.15);
+    border-radius: 20px;
+    padding: 35px 45px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease;
+}
+
+.resume-container:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 80, 80, 0.4);
+    box-shadow: 0 15px 50px rgba(248, 19, 19, 0.18);
+}
+
+.resume-icon-box {
+    font-size: 42px;
+    background: rgba(255, 80, 80, 0.08);
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 80, 80, 0.2);
+    flex-shrink: 0;
+}
+
+.resume-text-content {
+    flex: 1;
+}
+
+.resume-text-content h2 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #ffffff, #ffd369);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.resume-text-content p {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.6;
+}
+
+.resume-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Responsive adjustments for Resume Section */
+@media (max-width: 900px) {
+    .resume-container {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px 30px;
+    }
+    
+    .resume-icon-box {
+        margin: 0 auto;
+    }
+    
+    .resume-actions {
+        width: 100%;
+        justify-content: center;
+        gap: 12px;
+    }
+}
+
 /* ================= SKILLS SECTION ================= */
 .skills-section {
     padding: 90px 8%;
