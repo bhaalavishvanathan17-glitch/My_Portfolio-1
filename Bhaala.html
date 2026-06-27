@@ -23,7 +23,6 @@
             <li><a href="About Me.html">About Me</a></li>
             <li><a href="school.html">My School</a></li>
             <li><a href="college.html">My College</a></li>
-            <li><a href="Bhaala.html#certificates">Certificates</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="login.html" class="nav-login-btn">Login</a></li>
         </ul>
@@ -120,19 +119,99 @@
     <!-- ═══════════════ CERTIFICATES SECTION ═══════════════ -->
     <section class="certificates-section" id="certificates">
         <div class="section-header">
-            <h2>Certificates</h2>
-            <p>Professional credentials and courses I have completed</p>
+            <h2>Certificates &amp; Achievements</h2>
+            <p>A premium showcase of my academic certifications, research presentations, and internship credentials</p>
             <div class="divider"></div>
         </div>
 
+        <!-- Category Filters -->
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterCertificates('all')">All Credentials</button>
+            <button class="filter-btn" onclick="filterCertificates('ai-ml')">AI &amp; Machine Learning</button>
+            <button class="filter-btn" onclick="filterCertificates('fullstack-design')">Full Stack &amp; Design</button>
+            <button class="filter-btn" onclick="filterCertificates('experience-awards')">Experience &amp; Awards</button>
+        </div>
+
         <div class="certificates-grid">
-            <!-- Certificate Card 1 -->
-            <div class="certificate-card animate-fade-up">
-                <div class="certificate-icon-wrapper">
-                    <span class="cert-icon">🤖</span>
+            <!-- 1. Microsoft Azure AI Solution -->
+            <div class="certificate-card" data-category="ai-ml">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">AI &amp; ML</span>
+                    <div class="cert-icon-circle">🤖</div>
                 </div>
                 <div class="certificate-info">
-                    <span class="cert-category">Artificial Intelligence</span>
+                    <h3>Designing and Implementing a Microsoft Azure AI Solution</h3>
+                    <p class="cert-issuer">🏢 Genius Academy</p>
+                    <p class="cert-date">📅 March 2025</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/Designing%20and%20Implementing%20a%20Microsoft%20Azure%20Al%20Solution.pdf" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. Saylor ML -->
+            <div class="certificate-card" data-category="ai-ml">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">AI &amp; ML</span>
+                    <div class="cert-icon-circle">🧠</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>CS207: Fundamentals of Machine Learning</h3>
+                    <p class="cert-issuer">🏢 Saylor Academy</p>
+                    <p class="cert-date">📅 December 2025</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/Machine%20learning.pdf" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. Deep Learning Webinar -->
+            <div class="certificate-card" data-category="ai-ml">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">AI &amp; ML</span>
+                    <div class="cert-icon-circle">💻</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>Webinar on Deep Learning (MSME)</h3>
+                    <p class="cert-issuer">🏢 Innova Tech</p>
+                    <p class="cert-date">📅 October 2025</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/Deep%20learning.pdf" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. Deep Learning Infosys -->
+            <div class="certificate-card" data-category="ai-ml">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">AI &amp; ML</span>
+                    <div class="cert-icon-circle">🔬</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>Introduction to Deep Learning</h3>
+                    <p class="cert-issuer">🏢 Infosys Springboard</p>
+                    <p class="cert-date">📅 April 2026</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/OpenRoads%20Designer%20.pdf#page=2" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <!-- 5. AI Python Programming -->
+            <div class="certificate-card" data-category="ai-ml">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">AI &amp; ML</span>
+                    <div class="cert-icon-circle">🐍</div>
+                </div>
+                <div class="certificate-info">
                     <h3>AI &amp; Python Programming</h3>
                     <p class="cert-issuer">🏢 DeepLearning.AI / Coursera</p>
                     <p class="cert-date">📅 May 2026</p>
@@ -141,20 +220,17 @@
                     <a href="certificates/Certificate_AI_Python.pdf" target="_blank" class="cert-btn-view">
                         👁️ View Certificate
                     </a>
-                    <a href="certificates/Certificate_AI_Python.pdf" download="Certificate_AI_Python.pdf" class="cert-btn-download">
-                        📥 Download
-                    </a>
                 </div>
             </div>
 
-            <!-- Certificate Card 2 -->
-            <div class="certificate-card animate-fade-up">
-                <div class="certificate-icon-wrapper">
-                    <span class="cert-icon">📊</span>
+            <!-- 6. Google Data Analytics -->
+            <div class="certificate-card" data-category="ai-ml">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Data Science</span>
+                    <div class="cert-icon-circle">📊</div>
                 </div>
                 <div class="certificate-info">
-                    <span class="cert-category">Data Science</span>
-                    <h3>Google Data Analytics</h3>
+                    <h3>Google Data Analytics Professional</h3>
                     <p class="cert-issuer">🏢 Google</p>
                     <p class="cert-date">📅 April 2026</p>
                 </div>
@@ -162,33 +238,180 @@
                     <a href="certificates/Certificate_Data_Analyst.pdf" target="_blank" class="cert-btn-view">
                         👁️ View Certificate
                     </a>
-                    <a href="certificates/Certificate_Data_Analyst.pdf" download="Certificate_Data_Analyst.pdf" class="cert-btn-download">
-                        📥 Download
+                </div>
+            </div>
+
+            <!-- 7. Hifi11 Fullstack -->
+            <div class="certificate-card" data-category="fullstack-design">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Full Stack</span>
+                    <div class="cert-icon-circle">🌐</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>AI-Powered Fullstack: Zero to Hero Masterclass</h3>
+                    <p class="cert-issuer">🏢 Hifi11 Technologies</p>
+                    <p class="cert-date">📅 April 2026</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/OpenRoads%20Designer%20.pdf#page=3" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
                     </a>
                 </div>
             </div>
 
-            <!-- Certificate Card 3 -->
-            <div class="certificate-card animate-fade-up">
-                <div class="certificate-icon-wrapper">
-                    <span class="cert-icon">🧠</span>
+            <!-- 8. MongoDB Indexing -->
+            <div class="certificate-card" data-category="fullstack-design">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Database</span>
+                    <div class="cert-icon-circle">🍃</div>
                 </div>
                 <div class="certificate-info">
-                    <span class="cert-category">Machine Learning</span>
-                    <h3>Supervised Machine Learning</h3>
-                    <p class="cert-issuer">🏢 Stanford Online</p>
-                    <p class="cert-date">📅 June 2026</p>
+                    <h3>Indexing Design Fundamentals</h3>
+                    <p class="cert-issuer">🏢 MongoDB, Inc.</p>
+                    <p class="cert-date">📅 July 2025</p>
                 </div>
                 <div class="certificate-actions">
-                    <a href="certificates/Certificate_Machine_Learning.pdf" target="_blank" class="cert-btn-view">
+                    <a href="certificates/Mongo%20DB.pdf" target="_blank" class="cert-btn-view">
                         👁️ View Certificate
                     </a>
-                    <a href="certificates/Certificate_Machine_Learning.pdf" download="Certificate_Machine_Learning.pdf" class="cert-btn-download">
-                        📥 Download
+                </div>
+            </div>
+
+            <!-- 9. Adobe Design AI -->
+            <div class="certificate-card" data-category="fullstack-design">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Design</span>
+                    <div class="cert-icon-circle">🎨</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>Design Fundamentals with AI</h3>
+                    <p class="cert-issuer">🏢 Adobe / Coursera</p>
+                    <p class="cert-date">📅 January 2026</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/OpenRoads%20Designer%20.pdf#page=4" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <!-- 10. Bentley OpenRoads -->
+            <div class="certificate-card" data-category="fullstack-design">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Engineering</span>
+                    <div class="cert-icon-circle">🛣️</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>Introduction to OpenRoads Designer Concepts</h3>
+                    <p class="cert-issuer">🏢 Bentley Systems, Inc.</p>
+                    <p class="cert-date">📅 September 2024</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/OpenRoads%20Designer%20.pdf" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <!-- 11. Hackathon Award -->
+            <div class="certificate-card" data-category="experience-awards">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Award</span>
+                    <div class="cert-icon-circle">🏆</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>3rd Prize — HackXtreme'26 (24H National Hackathon)</h3>
+                    <p class="cert-issuer">🏢 K. Ramakrishnan College of Engineering</p>
+                    <p class="cert-date">📅 April 2026</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/Hackathon.pdf" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <!-- 12. Paper Presentation -->
+            <div class="certificate-card" data-category="experience-awards">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Conference</span>
+                    <div class="cert-icon-circle">📖</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>Explainable AI for Medical Diagnosis (Research Presentation)</h3>
+                    <p class="cert-issuer">🏢 ICIRIST - 2026 / Dhanalakshmi Srinivasan College</p>
+                    <p class="cert-date">📅 March 26, 2026</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/International%20Conference.pdf" target="_blank" class="cert-btn-view">
+                        👁️ View Certificate
+                    </a>
+                </div>
+            </div>
+
+            <!-- 13. Internship - CubeAI -->
+            <div class="certificate-card" data-category="experience-awards">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Internship</span>
+                    <div class="cert-icon-circle">💼</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>AI Developer Internship Offer</h3>
+                    <p class="cert-issuer">🏢 CubeAI Solutions Tech Pvt Ltd</p>
+                    <p class="cert-date">📅 April 14, 2026</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/Mr.%20Bhaalavishvanathan%20C%20-%20%20CAS%20-14042026-FY2766.pdf" target="_blank" class="cert-btn-view">
+                        👁️ View Offer Letter
+                    </a>
+                </div>
+            </div>
+
+            <!-- 14. Job Offer - ZANE Tech -->
+            <div class="certificate-card" data-category="experience-awards">
+                <div class="cert-card-header">
+                    <span class="cert-category-badge">Experience</span>
+                    <div class="cert-icon-circle">✉️</div>
+                </div>
+                <div class="certificate-info">
+                    <h3>Full Stack Developer Offer Letter</h3>
+                    <p class="cert-issuer">🏢 ZANE Tech Pvt Ltd</p>
+                    <p class="cert-date">📅 December 17, 2025</p>
+                </div>
+                <div class="certificate-actions">
+                    <a href="certificates/BHAALAVISHVANATHAN%20C%20COVER%20LETTER(1)%20ZANE.pdf" target="_blank" class="cert-btn-view">
+                        👁️ View Offer Letter
                     </a>
                 </div>
             </div>
         </div>
+
+        <script>
+            function filterCertificates(category) {
+                const filterBtns = document.querySelectorAll('.filter-btn');
+                filterBtns.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                const activeBtn = Array.from(filterBtns).find(btn => btn.getAttribute('onclick').includes(category));
+                if (activeBtn) activeBtn.classList.add('active');
+
+                const cards = document.querySelectorAll('.certificate-card');
+                cards.forEach(card => {
+                    if (category === 'all' || card.getAttribute('data-category') === category) {
+                        card.style.display = 'flex';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(15px)';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                            card.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                        }, 50);
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+        </script>
     </section>
 
     <hr>
