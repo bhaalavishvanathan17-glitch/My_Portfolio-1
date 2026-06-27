@@ -915,3 +915,163 @@ hr {
 .school-card-v2:hover .school-link-badge {
     color: #00c6ff;
 }
+
+/* ================= CERTIFICATES SECTION ================= */
+.certificates-section {
+    padding: 90px 8%;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.certificates-section .section-header h2 {
+    background: linear-gradient(90deg, #ffd369, #ff512f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.certificates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.certificate-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 211, 105, 0.15);
+    border-radius: 20px;
+    padding: 30px 25px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.certificate-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #ffd369, #ff512f);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.certificate-card:hover {
+    transform: translateY(-8px);
+    background: rgba(255, 211, 105, 0.05);
+    border-color: rgba(255, 211, 105, 0.35);
+    box-shadow: 0 15px 40px rgba(255, 211, 105, 0.08);
+}
+
+.certificate-card:hover::before {
+    opacity: 1;
+}
+
+.certificate-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 211, 105, 0.08);
+    border: 1px solid rgba(255, 211, 105, 0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.4s ease;
+}
+
+.certificate-card:hover .certificate-icon-wrapper {
+    background: rgba(255, 211, 105, 0.15);
+    border-color: rgba(255, 211, 105, 0.4);
+    transform: rotate(5deg) scale(1.05);
+}
+
+.cert-icon {
+    font-size: 28px;
+}
+
+.certificate-info {
+    flex: 1;
+    margin-bottom: 25px;
+}
+
+.cert-category {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #ffd369;
+    letter-spacing: 1px;
+    display: inline-block;
+    margin-bottom: 8px;
+    background: rgba(255, 211, 105, 0.1);
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.certificate-info h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.cert-issuer, .cert-date {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.certificate-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.cert-btn-view, .cert-btn-download {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.cert-btn-view {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.cert-btn-view:hover {
+    border-color: #ffd369;
+    color: #ffd369;
+    transform: translateY(-2px);
+}
+
+.cert-btn-download {
+    background: linear-gradient(135deg, #ffd369, #ff512f);
+    color: #000;
+    font-weight: 700;
+    border: none;
+}
+
+.cert-btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 211, 105, 0.4);
+}
