@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Session Guard -->
+    <script>
+        if (!localStorage.getItem('bhaala_logged_in') && !sessionStorage.getItem('bhaala_logged_in')) {
+            window.location.replace('login.html');
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Pulse AI — Project Details | Bhaala Vishvanathan</title>
+    <meta name="description" content="Mind Pulse AI — An AI-powered mental health monitoring platform built by Bhaalavishvanathan C. Full architecture, tech stack, features, and demo.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Bhaala.css">
+    <style>
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .arch-node {
+            background: rgba(0,198,255,0.06);
+            border: 1px solid rgba(0,198,255,0.18);
+            border-radius: 14px;
+            padding: 18px 14px;
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+            position: relative;
+        }
+        .arch-node .arch-icon { font-size: 26px; display: block; margin-bottom: 8px; }
+        .arch-node .arch-label { font-weight: 600; color: #00c6ff; font-size: 12px; margin-bottom: 4px; font-family:'Inter',sans-serif; }
+
+        .api-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .api-step {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 14px 18px;
+        }
+        .api-step-num {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f81313, #c0030e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            flex-shrink: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        .api-step p {
+            font-size: 13.5px;
+            color: rgba(255,255,255,0.7);
+            margin: 0;
+        }
+        .api-step strong { color: #00c6ff; }
+
+        .video-placeholder {
+            background: rgba(0,0,0,0.5);
+            border: 2px dashed rgba(255,255,255,0.15);
+            border-radius: 18px;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .video-placeholder:hover {
+            border-color: rgba(0,198,255,0.4);
+            background: rgba(0,198,255,0.04);
+        }
+        .video-play-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0,198,255,0.3), rgba(0,114,255,0.2));
+            border: 2px solid rgba(0,198,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+        }
+        .video-placeholder:hover .video-play-btn {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0,198,255,0.3);
+        }
+        .db-schema {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            color: #4ade80;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(74,222,128,0.15);
+            border-radius: 12px;
+            padding: 20px;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════ NAVIGATION ═══════════════ -->
+    <nav class="navbar">
+        <a href="Bhaala.html" class="navbar-brand">BV</a>
+        <ul>
+            <li><a href="Bhaala.html">Home</a></li>
+            <li><a href="About Me.html">About Me</a></li>
+            <li><a href="projects.html" class="active">Projects</a></li>
+            <li><a href="timeline.html">Timeline</a></li>
+            <li><a href="coding-profiles.html">Coding</a></li>
+            <li><a href="recruiter.html">Recruiter Hub</a></li>
+            <li><a href="terminal.html">Terminal</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="login.html" class="nav-login-btn">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <div class="project-detail-hero" style="background: linear-gradient(135deg, #0a0014 0%, #0a0a1f 50%, #14000a 100%);">
+        <span class="hero-badge">🧠 AI & ML Project</span>
+        <h1>Mind Pulse AI</h1>
+        <p style="color:rgba(255,255,255,0.65); max-width:600px; font-size:17px; margin-bottom:24px;">
+            An AI-powered mental health monitoring platform that provides early assessment, wellness insights, and personalized recommendations using NLP and machine learning.
+        </p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+            <span class="timeline-tag tag-project">AI & NLP</span>
+            <span class="timeline-tag tag-career">Full Stack</span>
+            <span class="timeline-tag tag-education">PostgreSQL</span>
+            <span class="timeline-tag tag-achievement">Production Ready</span>
+        </div>
+    </div>
+
+    <!-- ═══════════════ PROJECT CONTENT ═══════════════ -->
+    <div class="project-detail-content">
+
+        <!-- Overview -->
+        <div class="detail-section">
+            <h2>📋 Project Overview</h2>
+            <p>Mind Pulse AI is a comprehensive mental health monitoring platform designed to help individuals track, understand, and improve their mental wellbeing. By combining NLP-driven sentiment analysis, behavioral pattern recognition, and a conversational AI interface, the system offers clinically-inspired early assessment tools without replacing professional medical advice.</p>
+            <p style="margin-top:14px;">The platform provides daily mood tracking, cognitive behavioral therapy (CBT) inspired exercises, personalized wellness recommendations, and trend analytics — all through a premium, privacy-first interface.</p>
+        </div>
+
+        <!-- Problem Statement -->
+        <div class="detail-section">
+            <h2>❗ Problem Statement</h2>
+            <p>Mental health issues affect over 1 billion people globally, yet access to professional support remains limited due to stigma, cost, and availability. Most mental health apps offer generic advice without personalization or early detection capabilities. There is a critical gap for an <strong>intelligent, accessible, and privacy-first</strong> mental health monitoring tool that leverages AI for meaningful early insights.</p>
+        </div>
+
+        <!-- Solution -->
+        <div class="detail-section">
+            <h2>✅ Solution</h2>
+            <p>Mind Pulse AI bridges this gap by:</p>
+            <ul>
+                <li>Using <strong>NLP models</strong> to analyze user-written responses and detect emotional patterns (anxiety, depression indicators, stress levels)</li>
+                <li>Providing <strong>personalized wellness recommendations</strong> based on user history and detected patterns</li>
+                <li>Offering <strong>CBT-inspired exercises</strong> (breathing exercises, journaling prompts, mindfulness tasks)</li>
+                <li>Visualizing <strong>mood trends over time</strong> with interactive charts</li>
+                <li>Ensuring <strong>complete data privacy</strong> — all analysis done server-side with encrypted storage</li>
+            </ul>
+        </div>
+
+        <!-- Key Features -->
+        <div class="detail-section">
+            <h2>⚡ Key Features</h2>
+            <ul>
+                <li><strong>AI Mental Health Assessment</strong> — Multi-dimensional mood scoring using validated psychological scales (PHQ-9 inspired)</li>
+                <li><strong>Sentiment Analysis Engine</strong> — Real-time NLP analysis of journal entries and responses</li>
+                <li><strong>Personalized Wellness Plans</strong> — AI-generated daily wellness activities based on user profile</li>
+                <li><strong>Mood Trend Dashboard</strong> — 7-day, 30-day, and 90-day mood visualization charts</li>
+                <li><strong>CBT Exercise Library</strong> — Guided breathing, grounding techniques, and journaling prompts</li>
+                <li><strong>Crisis Detection</strong> — Keyword-based alerts with professional resource referrals</li>
+                <li><strong>Secure Authentication</strong> — bcrypt password hashing, session management</li>
+                <li><strong>Email Notifications</strong> — Wellness reminders and weekly mood reports</li>
+            </ul>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="detail-section">
+            <h2>🛠️ Tech Stack</h2>
+            <div class="tech-stack-grid">
+                <div class="tech-stack-item">Python 3.11</div>
+                <div class="tech-stack-item">TensorFlow</div>
+                <div class="tech-stack-item">NLTK</div>
+                <div class="tech-stack-item">Scikit-learn</div>
+                <div class="tech-stack-item">Express.js</div>
+                <div class="tech-stack-item">Node.js</div>
+                <div class="tech-stack-item">PostgreSQL</div>
+                <div class="tech-stack-item">HTML/CSS/JS</div>
+                <div class="tech-stack-item">Chart.js</div>
+                <div class="tech-stack-item">bcryptjs</div>
+                <div class="tech-stack-item">Nodemailer</div>
+                <div class="tech-stack-item">Vercel</div>
+            </div>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="detail-section">
+            <h2>🏗️ Architecture Diagram</h2>
+            <div class="architecture-diagram">
+                <div class="arch-node">
+                    <span class="arch-icon">🌐</span>
+                    <div class="arch-label">Frontend</div>
+                    HTML/CSS/JS
+                </div>
+                <div class="arch-node">
+                    <span class="arch-icon">⚡</span>
+                    <div class="arch-label">API Layer</div>
+                    Express.js REST
+                </div>
+                <div class="arch-node">
+                    <span class="arch-icon">🧠</span>
+                    <div class="arch-label">AI Engine</div>
+                    Python/TensorFlow
+                </div>
+                <div class="arch-node">
+                    <span class="arch-icon">🗄️</span>
+                    <div class="arch-label">Database</div>
+                    PostgreSQL
+                </div>
+                <div class="arch-node">
+                    <span class="arch-icon">📧</span>
+                    <div class="arch-label">Email</div>
+                    Nodemailer
+                </div>
+                <div class="arch-node">
+                    <span class="arch-icon">☁️</span>
+                    <div class="arch-label">Hosting</div>
+                    Vercel
+                </div>
+            </div>
+        </div>
+
+        <!-- API Flow -->
+        <div class="detail-section">
+            <h2>🔄 API Flow</h2>
+            <div class="api-flow">
+                <div class="api-step">
+                    <div class="api-step-num">1</div>
+                    <p><strong>User submits</strong> daily mood check-in or journal entry via the frontend form</p>
+                </div>
+                <div class="api-step">
+                    <div class="api-step-num">2</div>
+                    <p><strong>POST /api/assess</strong> — Express.js receives and validates the input, forwards to Python AI service</p>
+                </div>
+                <div class="api-step">
+                    <div class="api-step-num">3</div>
+                    <p><strong>NLP Processing</strong> — Python engine tokenizes text, runs sentiment model, calculates PHQ-9 inspired score</p>
+                </div>
+                <div class="api-step">
+                    <div class="api-step-num">4</div>
+                    <p><strong>Results stored</strong> in PostgreSQL with timestamp, user ID, scores, and detected emotions</p>
+                </div>
+                <div class="api-step">
+                    <div class="api-step-num">5</div>
+                    <p><strong>GET /api/insights</strong> — Frontend fetches personalized recommendations and trend data for dashboard rendering</p>
+                </div>
+                <div class="api-step">
+                    <div class="api-step-num">6</div>
+                    <p><strong>Email service</strong> sends weekly mood reports and reminders via Nodemailer/Resend</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Design -->
+        <div class="detail-section">
+            <h2>🗄️ Database Design</h2>
+            <div class="db-schema">
+-- Users Table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Mood Assessments
+CREATE TABLE mood_assessments (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    score DECIMAL(4,2) NOT NULL,      -- 0.00 - 27.00 (PHQ-9 range)
+    sentiment VARCHAR(50),             -- positive/neutral/negative
+    emotions JSONB,                    -- {anxiety:0.3, depression:0.1, ...}
+    journal_text TEXT,
+    recommendations JSONB,
+    assessed_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Wellness Activities
+CREATE TABLE wellness_activities (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    activity_type VARCHAR(100),
+    completed BOOLEAN DEFAULT false,
+    completed_at TIMESTAMP
+);
+            </div>
+        </div>
+
+        <!-- Folder Structure -->
+        <div class="detail-section">
+            <h2>📁 Folder Structure</h2>
+            <div class="db-schema" style="color: rgba(255,255,255,0.75);">
+mind-pulse-ai/
+├── api/
+│   ├── index.js          # Express.js server
+│   ├── routes/
+│   │   ├── auth.js       # Authentication routes
+│   │   ├── assess.js     # AI assessment routes
+│   │   └── insights.js   # Dashboard data routes
+├── ai-engine/
+│   ├── model.py          # TensorFlow NLP model
+│   ├── sentiment.py      # Sentiment analysis
+│   └── recommender.py    # Wellness recommendations
+├── frontend/
+│   ├── index.html        # Landing page
+│   ├── dashboard.html    # Mood dashboard
+│   ├── journal.html      # Daily journal
+│   └── styles/
+├── database/
+│   └── schema.sql        # PostgreSQL schema
+└── vercel.json           # Deployment config
+            </div>
+        </div>
+
+        <!-- Challenges -->
+        <div class="detail-section">
+            <h2>🧗 Challenges Faced</h2>
+            <ul>
+                <li><strong>NLP Model Accuracy</strong> — Mental health language is nuanced; trained on domain-specific datasets to improve sensitivity without causing false positives</li>
+                <li><strong>Privacy-First Architecture</strong> — Designing a system that processes sensitive data while ensuring user privacy and regulatory compliance (GDPR considerations)</li>
+                <li><strong>Crisis Detection Balance</strong> — Accurately detecting crisis indicators without over-triggering alerts required extensive threshold tuning</li>
+                <li><strong>Real-time Performance</strong> — Optimizing the Python AI engine response time to under 2 seconds for seamless UX</li>
+            </ul>
+        </div>
+
+        <!-- Future Improvements -->
+        <div class="detail-section">
+            <h2>🚀 Future Improvements</h2>
+            <ul>
+                <li>Integrate <strong>voice-based mood analysis</strong> using speech-to-text and audio sentiment models</li>
+                <li>Build a <strong>therapist dashboard</strong> for professionals to monitor consenting patients remotely</li>
+                <li>Add <strong>wearable device integration</strong> (heart rate, sleep data) for physiological mood correlation</li>
+                <li>Implement <strong>federated learning</strong> to improve models while preserving user privacy</li>
+                <li>Create a <strong>mobile app</strong> (React Native) for iOS and Android</li>
+                <li>Add <strong>multilingual support</strong> — Tamil, Hindi, and other Indian languages</li>
+            </ul>
+        </div>
+
+        <!-- Demo Video Section -->
+        <div class="detail-section">
+            <h2>🎬 Demo Video</h2>
+            <div class="video-placeholder" onclick="alert('Demo video coming soon! Check back for the full walkthrough video.')">
+                <div class="video-play-btn">▶</div>
+                <p style="color:rgba(255,255,255,0.6); font-size:15px; font-weight:600;">Watch Full Demo</p>
+                <p style="color:rgba(255,255,255,0.35); font-size:13px;">Mind Pulse AI — Complete Platform Walkthrough</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════ CTA BAR ═══════════════ -->
+    <div class="project-cta-bar">
+        <a href="projects.html" class="btn-outline">← Back to Projects</a>
+        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-primary">🐙 View on GitHub</a>
+        <a href="contact.html" class="btn-outline">💬 Discuss This Project</a>
+    </div>
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <footer class="footer">
+        © 2026 <span>Bhaalavishvanathan</span> — Built with passion & purpose.
+    </footer>
+
+    <script>
+        /* Navbar login/logout */
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.querySelector('.nav-login-btn');
+            if (loginBtn && (localStorage.getItem('bhaala_logged_in') || sessionStorage.getItem('bhaala_logged_in'))) {
+                loginBtn.textContent = 'Logout';
+                loginBtn.href = '#';
+                loginBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    localStorage.removeItem('bhaala_logged_in');
+                    localStorage.removeItem('bhaala_user');
+                    sessionStorage.removeItem('bhaala_logged_in');
+                    sessionStorage.removeItem('bhaala_user');
+                    window.location.replace('login.html');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

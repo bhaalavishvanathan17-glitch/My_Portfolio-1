@@ -9,9 +9,43 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bhaala | Professional Portfolio</title>
-    <meta name="description" content="Bhaala Vishvanathan – AI & Data Science Enthusiast. Portfolio showcasing skills, education, and passion for technology.">
+    <title>Bhaala Vishvanathan | AI Engineer & Full Stack Developer Portfolio</title>
+    <meta name="description" content="Bhaala Vishvanathan – AI & Data Science Engineer. B.Tech student specializing in Machine Learning, Full Stack Development, and Data Analytics. View projects, certificates, and more.">
+    <meta name="keywords" content="Bhaala Vishvanathan, AI Engineer, Data Science, Machine Learning, Full Stack Developer, Portfolio, Python, React">
+    <meta name="author" content="Bhaalavishvanathan C">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://bhaala.vercel.app/Bhaala.html">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Bhaala Vishvanathan | AI Engineer Portfolio">
+    <meta property="og:description" content="AI & Data Science Enthusiast. B.Tech student building intelligent solutions.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bhaala.vercel.app/Bhaala.html">
+    <meta property="og:image" content="https://bhaala.vercel.app/Images/Bhaala.jpeg">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bhaala Vishvanathan | AI Engineer Portfolio">
+    <meta name="twitter:description" content="AI & Data Science Enthusiast building intelligent solutions.">
+    <meta name="twitter:image" content="https://bhaala.vercel.app/Images/Bhaala.jpeg">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="Bhaala.css">
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Bhaalavishvanathan C",
+        "jobTitle": "AI & Data Science Enthusiast",
+        "url": "https://bhaala.vercel.app",
+        "sameAs": [
+            "https://github.com/bhaalavishvanathan17-glitch",
+            "https://www.linkedin.com/in/bhaalavishvanathan-c-59576a312/"
+        ],
+        "email": "bhaalavishvanathan17@gmail.com"
+    }
+    </script>
 </head>
 <body>
 
@@ -21,8 +55,11 @@
         <ul>
             <li><a href="Bhaala.html" class="active">Home</a></li>
             <li><a href="About Me.html">About Me</a></li>
-            <li><a href="school.html">My School</a></li>
-            <li><a href="college.html">My College</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="timeline.html">Timeline</a></li>
+            <li><a href="coding-profiles.html">Coding</a></li>
+            <li><a href="recruiter.html">Recruiter Hub</a></li>
+            <li><a href="terminal.html">Terminal</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="login.html" class="nav-login-btn">Login</a></li>
         </ul>
@@ -47,6 +84,47 @@
             <div class="hero-img-badge">
                 <span>Bhaala</span>
                 2nd Year · B.Tech
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ ACHIEVEMENT COUNTERS ═══════════════ -->
+    <section class="counters-section" id="achievements" aria-label="Achievement Statistics">
+        <div class="counters-grid">
+            <div class="counter-card">
+                <span class="counter-icon">🚀</span>
+                <div class="counter-number" data-target="8" data-suffix="+">0</div>
+                <div class="counter-label">Projects</div>
+            </div>
+            <div class="counter-card">
+                <span class="counter-icon">🏆</span>
+                <div class="counter-number" data-target="14" data-suffix="+">0</div>
+                <div class="counter-label">Certificates</div>
+            </div>
+            <div class="counter-card">
+                <span class="counter-icon">📄</span>
+                <div class="counter-number" data-target="1">0</div>
+                <div class="counter-label">Research Paper</div>
+            </div>
+            <div class="counter-card">
+                <span class="counter-icon">⚡</span>
+                <div class="counter-number" data-target="1">0</div>
+                <div class="counter-label">Hackathon Win</div>
+            </div>
+            <div class="counter-card">
+                <span class="counter-icon">💼</span>
+                <div class="counter-number" data-target="2">0</div>
+                <div class="counter-label">Internships</div>
+            </div>
+            <div class="counter-card">
+                <span class="counter-icon">🛠️</span>
+                <div class="counter-number" data-target="20" data-suffix="+">0</div>
+                <div class="counter-label">Technologies</div>
+            </div>
+            <div class="counter-card">
+                <span class="counter-icon">🐙</span>
+                <div class="counter-number" data-target="15" data-suffix="+">0</div>
+                <div class="counter-label">GitHub Repos</div>
             </div>
         </div>
     </section>
@@ -448,6 +526,56 @@
         © 2026 <span>Bhaalavishvanathan</span> — Built with passion & purpose.
     </footer>
 
+    <!-- ════════════════ AI CHATBOT WIDGET ════════════════ -->
+    <!-- Floating Button -->
+    <button class="ai-chat-btn" id="aiChatBtn" aria-label="Open AI Assistant" onclick="toggleChat()">
+        <span id="chatBtnIcon">🤖</span>
+        <span class="chat-btn-tooltip">Ask Bhaala AI</span>
+    </button>
+
+    <!-- Chat Panel -->
+    <div class="ai-chat-panel" id="aiChatPanel" role="dialog" aria-label="Bhaala AI Assistant">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div class="chat-header-info">
+                <h4>Ask Bhaala AI</h4>
+                <div class="chat-status">Online · Portfolio Assistant</div>
+            </div>
+            <button class="chat-close-btn" onclick="toggleChat()" aria-label="Close chat">✕</button>
+        </div>
+
+        <!-- Suggested Questions -->
+        <div class="chat-suggestions" id="chatSuggestions">
+            <span class="suggestion-chip" onclick="sendSuggestion(this.textContent)">Who is Bhaala?</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this.textContent)">Skills</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this.textContent)">Projects</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this.textContent)">Certificates</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this.textContent)">Internship</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this.textContent)">Resume</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this.textContent)">Contact</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this.textContent)">Education</span>
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Welcome message added by JS -->
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+            <input
+                type="text"
+                class="chat-input"
+                id="chatInput"
+                placeholder="Ask me anything about Bhaala..."
+                onkeydown="if(event.key==='Enter') sendMessage()"
+                autocomplete="off"
+            >
+            <button class="chat-send-btn" onclick="sendMessage()" aria-label="Send">➤</button>
+        </div>
+    </div>
+
     <!-- Script to handle dynamic Login/Logout in navbar -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -465,6 +593,183 @@
                 });
             }
         });
+    </script>
+
+    <!-- ════════════════ ACHIEVEMENT COUNTER SCRIPT ════════════════ -->
+    <script>
+        /* Animate counters when section enters viewport */
+        (function() {
+            const counters = document.querySelectorAll('.counter-number[data-target]');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !entry.target.dataset.animated) {
+                        entry.target.dataset.animated = 'true';
+                        animateCounter(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            counters.forEach(c => observer.observe(c));
+
+            function animateCounter(el) {
+                const target = parseInt(el.dataset.target);
+                const suffix = el.dataset.suffix || '';
+                const duration = 1800;
+                const steps = 60;
+                const increment = target / steps;
+                let current = 0;
+                const interval = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        el.textContent = target + suffix;
+                        clearInterval(interval);
+                    } else {
+                        el.textContent = Math.floor(current) + suffix;
+                    }
+                }, duration / steps);
+            }
+        })();
+    </script>
+
+    <!-- ════════════════ AI CHATBOT SCRIPT ════════════════ -->
+    <script>
+        /* ── Portfolio Knowledge Base ── */
+        const portfolioKB = {
+            about: {
+                keywords: ['who is bhaala', 'about bhaala', 'tell me about', 'who are you', 'introduce'],
+                response: `👋 <strong>Hi! I'm Bhaala Vishvanathan (Bhaalavishvanathan C)</strong> — an AI & Data Science Enthusiast currently pursuing B.Tech in AI & Data Science (2nd Year).<br><br>I'm passionate about Machine Learning, Full Stack Development, and building intelligent solutions. I've worked on projects like Mind Pulse AI, earned 14+ certifications, presented research at an international conference, and won 3rd prize at HackXtreme'26!`
+            },
+            skills: {
+                keywords: ['skill', 'technologies', 'tech stack', 'what can you do', 'expertise', 'programming'],
+                response: `🛠️ <strong>Technical Skills:</strong><br><br>• <strong>AI/ML:</strong> Python, TensorFlow, Scikit-learn, NLP, Computer Vision<br>• <strong>Data Science:</strong> Pandas, NumPy, Matplotlib, SQL, Power BI<br>• <strong>Web Dev:</strong> HTML, CSS, JavaScript, Node.js, Express.js<br>• <strong>Cloud:</strong> Microsoft Azure AI<br>• <strong>Databases:</strong> PostgreSQL, MongoDB<br>• <strong>Tools:</strong> Git, GitHub, VS Code, Jupyter Notebook`
+            },
+            projects: {
+                keywords: ['project', 'built', 'work', 'ai project', 'fullstack', 'portfolio project'],
+                response: `🚀 <strong>Key Projects:</strong><br><br>• <strong>Mind Pulse AI</strong> — Mental health monitoring platform with AI diagnostics<br>• <strong>Explainable AI for Medical Diagnosis</strong> — Research presented at ICIRIST-2026<br>• <strong>AI Portfolio (This Website!)</strong> — Full stack app with Express.js, PostgreSQL & AI chatbot<br>• <strong>Data Analytics Dashboard</strong> — Interactive visualizations & reporting<br><br>👉 <a href="projects.html" style="color:#00c6ff">View all projects →</a>`
+            },
+            certificates: {
+                keywords: ['certificate', 'certification', 'credential', 'course', 'learn'],
+                response: `🏆 <strong>14+ Certifications including:</strong><br><br>• Microsoft Azure AI Solution (Genius Academy)<br>• CS207: Fundamentals of ML (Saylor Academy)<br>• Google Data Analytics Professional (Google)<br>• AI & Python Programming (DeepLearning.AI)<br>• AI-Powered Fullstack Masterclass (Hifi11)<br>• MongoDB Indexing Design (MongoDB, Inc.)<br>• Deep Learning Webinar (Innova Tech)<br>• Design Fundamentals with AI (Adobe/Coursera)<br><br>👉 <a href="Bhaala.html#certificates" style="color:#ffd369">View all certificates →</a>`
+            },
+            internship: {
+                keywords: ['internship', 'experience', 'work experience', 'job', 'company', 'cubeai', 'zane'],
+                response: `💼 <strong>Professional Experience:</strong><br><br>• <strong>AI Developer Intern</strong> @ CubeAI Solutions Tech Pvt Ltd (April 2026)<br>• <strong>Full Stack Developer</strong> Offer @ ZANE Tech Pvt Ltd (December 2025)<br><br>Both positions demonstrate real-world application of AI and web development skills gained through self-study and coursework.`
+            },
+            education: {
+                keywords: ['education', 'college', 'study', 'degree', 'btech', 'university', 'school', 'academic'],
+                response: `🎓 <strong>Education:</strong><br><br>• <strong>B.Tech — AI & Data Science</strong> (2nd Year, 2023–2027)<br>&nbsp;&nbsp;Dhanalakshmi Srinivasan College of Engineering<br><br>• Completed schooling through multiple institutions across Tamil Nadu<br><br>📖 Currently focused on Machine Learning, Data Engineering, and Full Stack AI applications.`
+            },
+            resume: {
+                keywords: ['resume', 'cv', 'download', 'pdf', 'hire'],
+                response: `📄 <strong>My Resume is ready to download!</strong><br><br>👉 <a href="Bhaalavishvanathan_C_Data_Analyst_Resume.pdf" download style="color:#ffd369">📥 Download Resume</a><br>👉 <a href="Bhaalavishvanathan_C_Data_Analyst_Resume.pdf" target="_blank" style="color:#00c6ff">👁️ Preview Resume</a><br><br>It covers my education, skills, projects, certifications, and experience.`
+            },
+            contact: {
+                keywords: ['contact', 'reach', 'email', 'phone', 'linkedin', 'github', 'social', 'connect', 'hire me'],
+                response: `📬 <strong>Let's Connect!</strong><br><br>• 📧 <a href="mailto:bhaalavishvanathan17@gmail.com" style="color:#f87171">bhaalavishvanathan17@gmail.com</a><br>• 💼 <a href="https://www.linkedin.com/in/bhaalavishvanathan-c-59576a312/" target="_blank" style="color:#60a5fa">LinkedIn Profile</a><br>• 🐙 <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" style="color:#fff">GitHub Profile</a><br>• 📞 <a href="tel:+919361000742" style="color:#4ade80">+91 93610 00742</a><br>• 💬 <a href="https://wa.me/919361000742" target="_blank" style="color:#4ade80">WhatsApp</a><br><br>👉 Or use the <a href="contact.html" style="color:#ffd369">Contact Form →</a>`
+            },
+            research: {
+                keywords: ['research', 'paper', 'publication', 'conference', 'icirist', 'xai', 'medical'],
+                response: `📖 <strong>Research:</strong><br><br><strong>"Explainable AI for Medical Diagnosis"</strong><br>Presented at <strong>ICIRIST-2026</strong> at Dhanalakshmi Srinivasan College of Engineering (March 26, 2026).<br><br>This paper explores XAI techniques that make AI diagnostic decisions interpretable for medical professionals, combining computer vision and explainability frameworks.`
+            },
+            hackathon: {
+                keywords: ['hackathon', 'competition', 'prize', 'award', 'hackxtreme', 'win'],
+                response: `🏅 <strong>Hackathon Achievement:</strong><br><br><strong>3rd Prize 🥉 at HackXtreme'26</strong><br>24-Hour National Hackathon<br>K. Ramakrishnan College of Engineering (April 2026)<br><br>Competed against teams from across India in a 24-hour intensive coding challenge!`
+            },
+            timeline: {
+                keywords: ['timeline', 'journey', 'history', 'story', 'path', 'growth'],
+                response: `⏳ <strong>My Journey Timeline:</strong><br><br>🎓 Started B.Tech AI & DS → 🐍 Learned Python → 📊 Data Science → 🌐 Full Stack → 🤖 AI/ML Projects → 📖 Research Paper → 🏆 Hackathon Win → 💼 Internship Offers → 🚀 AI Portfolio Built<br><br>👉 <a href="timeline.html" style="color:#ffd369">See Full Timeline →</a>`
+            },
+            help: {
+                keywords: ['help', 'what can you', 'commands', 'options', 'menu'],
+                response: `💡 <strong>I can answer questions about:</strong><br><br>• 👤 About Bhaala<br>• 🛠️ Skills & Technologies<br>• 🚀 Projects<br>• 🏆 Certificates<br>• 💼 Internship Experience<br>• 🎓 Education<br>• 📄 Resume<br>• 📬 Contact Info<br>• 📖 Research Papers<br>• 🏅 Hackathon Wins<br>• ⏳ Career Timeline<br><br>Just type your question below!`
+            }
+        };
+
+        let chatOpen = false;
+        let chatInitialized = false;
+
+        /* Toggle chat panel open/close */
+        function toggleChat() {
+            const panel = document.getElementById('aiChatPanel');
+            const icon = document.getElementById('chatBtnIcon');
+            chatOpen = !chatOpen;
+            panel.classList.toggle('open', chatOpen);
+            icon.textContent = chatOpen ? '✕' : '🤖';
+
+            if (chatOpen && !chatInitialized) {
+                chatInitialized = true;
+                setTimeout(() => {
+                    addBotMessage(`👋 Hello! I'm <strong>Ask Bhaala AI</strong> — your personal guide to Bhaala's portfolio!<br><br>Feel free to ask me anything about his skills, projects, certificates, experience, or education. Use the quick chips above or type below!`);
+                }, 300);
+            }
+            if (chatOpen) {
+                setTimeout(() => document.getElementById('chatInput').focus(), 400);
+            }
+        }
+
+        /* Add a bot message bubble */
+        function addBotMessage(html) {
+            const msgs = document.getElementById('chatMessages');
+
+            // Show typing indicator first
+            const typing = document.createElement('div');
+            typing.className = 'typing-indicator';
+            typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            msgs.appendChild(typing);
+            msgs.scrollTop = msgs.scrollHeight;
+
+            setTimeout(() => {
+                msgs.removeChild(typing);
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble bot';
+                bubble.innerHTML = html;
+                msgs.appendChild(bubble);
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 900);
+        }
+
+        /* Add a user message bubble */
+        function addUserMessage(text) {
+            const msgs = document.getElementById('chatMessages');
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble user';
+            bubble.textContent = text;
+            msgs.appendChild(bubble);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        /* Find matching response from KB */
+        function findResponse(query) {
+            const q = query.toLowerCase().trim();
+            for (const key in portfolioKB) {
+                const entry = portfolioKB[key];
+                if (entry.keywords.some(kw => q.includes(kw))) {
+                    return entry.response;
+                }
+            }
+            return `🤔 I'm not sure about that! I specialize in Bhaala's portfolio. Try asking about:<br><br>• Skills / Projects / Certificates<br>• Education / Experience<br>• Resume / Contact<br><br>Or type <strong>help</strong> for the full menu!`;
+        }
+
+        /* Send user message */
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            addUserMessage(text);
+            const response = findResponse(text);
+            addBotMessage(response);
+        }
+
+        /* Send suggestion chip */
+        function sendSuggestion(text) {
+            addUserMessage(text);
+            const response = findResponse(text);
+            addBotMessage(response);
+            if (document.getElementById('aiChatPanel').classList.contains('open')) {
+                document.getElementById('chatInput').focus();
+            }
+        }
     </script>
 </body>
 </html>

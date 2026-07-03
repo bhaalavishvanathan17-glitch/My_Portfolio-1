@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Session Guard -->
+    <script>
+        if (!localStorage.getItem('bhaala_logged_in') && !sessionStorage.getItem('bhaala_logged_in')) {
+            window.location.replace('login.html');
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Mode | Bhaala Vishvanathan</title>
+    <meta name="description" content="Explore Bhaala Vishvanathan's portfolio through a developer terminal interface. Type commands like help, about, skills, projects.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Bhaala.css">
+    <style>
+        /* Override body bg for terminal mode */
+        body { background: #000 !important; }
+        .terminal-nav {
+            background: rgba(0,0,0,0.9);
+            border-bottom: 1px solid rgba(74,222,128,0.15);
+        }
+        .terminal-nav .navbar-brand {
+            background: linear-gradient(90deg, #4ade80, #00c6ff) !important;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════ NAVIGATION ═══════════════ -->
+    <nav class="navbar terminal-nav">
+        <a href="Bhaala.html" class="navbar-brand">BV</a>
+        <ul>
+            <li><a href="Bhaala.html">Home</a></li>
+            <li><a href="About Me.html">About Me</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="timeline.html">Timeline</a></li>
+            <li><a href="coding-profiles.html">Coding</a></li>
+            <li><a href="recruiter.html">Recruiter Hub</a></li>
+            <li><a href="terminal.html" class="active">Terminal</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="login.html" class="nav-login-btn">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- ═══════════════ TERMINAL PAGE ═══════════════ -->
+    <div class="terminal-page">
+
+        <div class="terminal-header-text">
+            <h1>~/bhaala-portfolio</h1>
+            <p>Developer Terminal — Type <code style="color:#ffd369">help</code> to see all available commands</p>
+        </div>
+
+        <div class="terminal-window">
+            <!-- Titlebar -->
+            <div class="terminal-titlebar">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span class="terminal-title">bhaala@portfolio:~</span>
+            </div>
+
+            <!-- Body -->
+            <div class="terminal-body" id="terminalBody">
+                <!-- Welcome Banner -->
+                <div class="terminal-line output highlight">
+  ██████╗ ██╗  ██╗ █████╗  █████╗ ██╗      █████╗
+  ██╔══██╗██║  ██║██╔══██╗██╔══██╗██║     ██╔══██╗
+  ██████╔╝███████║███████║███████║██║     ███████║
+  ██╔══██╗██╔══██║██╔══██║██╔══██║██║     ██╔══██║
+  ██████╔╝██║  ██║██║  ██║██║  ██║███████╗██║  ██║
+  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+                </div>
+                <div class="terminal-line output success">
+  Portfolio Terminal v2.0 — Bhaalavishvanathan C
+                </div>
+                <div class="terminal-line output" style="color:rgba(255,255,255,0.4);">
+  Type 'help' to see all commands. Use ↑↓ for history.
+                </div>
+                <div class="terminal-line blank"></div>
+
+                <!-- Input Line -->
+                <div class="terminal-input-line" id="inputLine">
+                    <span class="terminal-prompt-symbol">bhaala@portfolio:~$&nbsp;</span>
+                    <input
+                        type="text"
+                        class="terminal-input"
+                        id="terminalInput"
+                        placeholder=""
+                        autocomplete="off"
+                        spellcheck="false"
+                        autofocus
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick commands reference -->
+        <div style="max-width:860px; width:100%; margin-top:24px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+            <span class="suggestion-chip" onclick="runCmd('help')">help</span>
+            <span class="suggestion-chip" onclick="runCmd('about')">about</span>
+            <span class="suggestion-chip" onclick="runCmd('skills')">skills</span>
+            <span class="suggestion-chip" onclick="runCmd('projects')">projects</span>
+            <span class="suggestion-chip" onclick="runCmd('education')">education</span>
+            <span class="suggestion-chip" onclick="runCmd('experience')">experience</span>
+            <span class="suggestion-chip" onclick="runCmd('certificates')">certificates</span>
+            <span class="suggestion-chip" onclick="runCmd('resume')">resume</span>
+            <span class="suggestion-chip" onclick="runCmd('contact')">contact</span>
+            <span class="suggestion-chip" onclick="runCmd('whoami')">whoami</span>
+            <span class="suggestion-chip" onclick="runCmd('clear')">clear</span>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <footer class="footer" style="background:#000; border-top:1px solid rgba(74,222,128,0.1);">
+        © 2026 <span>Bhaalavishvanathan</span> — Built with passion & purpose.
+    </footer>
+
+    <script>
+        /* ═══════════════ TERMINAL ENGINE ═══════════════ */
+
+        /* Command definitions */
+        const commands = {
+            help: {
+                fn: () => [
+                    { type: 'highlight', text: '┌─────────────────────────────────────────────────┐' },
+                    { type: 'highlight', text: '│         Bhaala Portfolio — Available Commands    │' },
+                    { type: 'highlight', text: '└─────────────────────────────────────────────────┘' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  help          → Show this help menu' },
+                    { type: 'success', text: '  about         → About Bhaala Vishvanathan' },
+                    { type: 'success', text: '  whoami        → Current user & portfolio info' },
+                    { type: 'success', text: '  skills        → Technical skills & tech stack' },
+                    { type: 'success', text: '  projects      → Portfolio projects' },
+                    { type: 'success', text: '  education     → Academic background' },
+                    { type: 'success', text: '  experience    → Internships & work experience' },
+                    { type: 'success', text: '  certificates  → All certifications' },
+                    { type: 'success', text: '  resume        → View & download resume' },
+                    { type: 'success', text: '  contact       → Get in touch' },
+                    { type: 'success', text: '  clear         → Clear terminal' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  ↑↓ Arrow keys = navigate command history', style: 'color:rgba(255,255,255,0.35)' },
+                ]
+            },
+            about: {
+                fn: () => [
+                    { type: 'highlight', text: '╔══════════════════════════════════════════════╗' },
+                    { type: 'highlight', text: '║         BHAALAVISHVANATHAN C                 ║' },
+                    { type: 'highlight', text: '╚══════════════════════════════════════════════╝' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  Name     : Bhaalavishvanathan C' },
+                    { type: 'output', text: '  Alias    : Bhaala' },
+                    { type: 'output', text: '  Role     : AI & Data Science Engineer (Student)' },
+                    { type: 'output', text: '  Year     : B.Tech 2nd Year (2023-2027)' },
+                    { type: 'output', text: '  College  : Dhanalakshmi Srinivasan College of Engg.' },
+                    { type: 'output', text: '  Location : Tamil Nadu, India' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  Passionate about AI, ML, Full Stack & Open Source.' },
+                    { type: 'success', text: '  Building solutions that make real-world impact.' },
+                ]
+            },
+            whoami: {
+                fn: () => [
+                    { type: 'output', text: '' },
+                    { type: 'highlight', text: '  bhaalavishvanathan@portfolio' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  You are viewing the premium portfolio of:' },
+                    { type: 'success', text: '  Bhaalavishvanathan C — AI Engineer & Developer' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  Session: Authenticated ✅' },
+                    { type: 'output', text: '  Mode   : Developer Terminal' },
+                    { type: 'output', text: '  Build  : v2.0 (July 2026)' },
+                ]
+            },
+            skills: {
+                fn: () => [
+                    { type: 'highlight', text: '  ◉ TECHNICAL SKILLS' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  ── AI & Machine Learning ──────────────────────' },
+                    { type: 'output', text: '  Python  TensorFlow  Scikit-learn  Keras  NLP' },
+                    { type: 'output', text: '  Computer Vision  XAI  LIME  SHAP  Transformers' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  ── Data Science ────────────────────────────────' },
+                    { type: 'output', text: '  Pandas  NumPy  Matplotlib  Seaborn  SQL  Power BI' },
+                    { type: 'output', text: '  Data Cleaning  EDA  Statistical Analysis' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  ── Web Development ─────────────────────────────' },
+                    { type: 'output', text: '  HTML  CSS  JavaScript  Node.js  Express.js  REST APIs' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  ── Cloud & Databases ───────────────────────────' },
+                    { type: 'output', text: '  Microsoft Azure  PostgreSQL  MongoDB  bcrypt' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  ── Tools & Platforms ───────────────────────────' },
+                    { type: 'output', text: '  Git  GitHub  VS Code  Jupyter  Vercel  Postman' },
+                ]
+            },
+            projects: {
+                fn: () => [
+                    { type: 'highlight', text: '  ◉ PORTFOLIO PROJECTS' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  [1] Mind Pulse AI' },
+                    { type: 'output', text: '      AI-powered mental health monitoring platform' },
+                    { type: 'output', text: '      Stack: Python, TensorFlow, Express.js, PostgreSQL' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  [2] Explainable AI for Medical Diagnosis' },
+                    { type: 'output', text: '      Research paper — XAI for transparent diagnostics' },
+                    { type: 'output', text: '      Presented at ICIRIST-2026' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  [3] Premium AI Portfolio (This App!)' },
+                    { type: 'output', text: '      Full stack enterprise portfolio with AI chatbot' },
+                    { type: 'output', text: '      Stack: Express.js, PostgreSQL, Resend, Vercel' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  [4] Data Analytics Dashboard' },
+                    { type: 'output', text: '      Interactive BI dashboard with real-time analytics' },
+                    { type: 'output', text: '      Stack: Python, Pandas, Power BI, SQL' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  → Visit: projects.html for full showcase', style:'color:#00c6ff' },
+                ]
+            },
+            education: {
+                fn: () => [
+                    { type: 'highlight', text: '  ◉ EDUCATION' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  🎓 B.Tech — AI & Data Science (2023 – 2027)' },
+                    { type: 'output', text: '     Dhanalakshmi Srinivasan College of Engineering' },
+                    { type: 'output', text: '     Perambalur, Tamil Nadu' },
+                    { type: 'output', text: '     Status: 2nd Year (In Progress)' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  🏫 School (2010 – 2023)' },
+                    { type: 'output', text: '     Jay Tech International School' },
+                    { type: 'output', text: '     Mary Matha CMI Public School' },
+                    { type: 'output', text: '     RR International School' },
+                    { type: 'output', text: '     Nesan Kala Salai' },
+                ]
+            },
+            experience: {
+                fn: () => [
+                    { type: 'highlight', text: '  ◉ PROFESSIONAL EXPERIENCE' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  💼 AI Developer Intern' },
+                    { type: 'output', text: '     CubeAI Solutions Tech Pvt Ltd' },
+                    { type: 'output', text: '     April 14, 2026 — Present' },
+                    { type: 'output', text: '     AI product development & model integration' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  ✉️  Full Stack Developer (Offer)' },
+                    { type: 'output', text: '     ZANE Tech Pvt Ltd' },
+                    { type: 'output', text: '     December 17, 2025' },
+                    { type: 'output', text: '     Full stack web application development' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  🏆 HackXtreme\'26 — 3rd Prize (National Hackathon)' },
+                    { type: 'output', text: '     K. Ramakrishnan College of Engineering' },
+                    { type: 'output', text: '     April 2026 — 24-Hour National Competition' },
+                ]
+            },
+            certificates: {
+                fn: () => [
+                    { type: 'highlight', text: '  ◉ CERTIFICATIONS (14+)' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  AI & Machine Learning:' },
+                    { type: 'output', text: '  ✅ Microsoft Azure AI Solution — Genius Academy (2025)' },
+                    { type: 'output', text: '  ✅ CS207: Fundamentals of ML — Saylor Academy (2025)' },
+                    { type: 'output', text: '  ✅ Introduction to Deep Learning — Infosys (2026)' },
+                    { type: 'output', text: '  ✅ Deep Learning Webinar MSME — Innova Tech (2025)' },
+                    { type: 'output', text: '  ✅ AI & Python Programming — DeepLearning.AI (2026)' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  Data Science & Full Stack:' },
+                    { type: 'output', text: '  ✅ Google Data Analytics Professional — Google (2026)' },
+                    { type: 'output', text: '  ✅ AI-Powered Fullstack Masterclass — Hifi11 (2026)' },
+                    { type: 'output', text: '  ✅ MongoDB Indexing Design — MongoDB, Inc. (2025)' },
+                    { type: 'output', text: '  ✅ Design Fundamentals with AI — Adobe (2026)' },
+                    { type: 'output', text: '  ✅ OpenRoads Designer — Bentley Systems (2024)' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  → View PDFs: Bhaala.html#certificates', style:'color:#ffd369' },
+                ]
+            },
+            resume: {
+                fn: () => [
+                    { type: 'highlight', text: '  ◉ RESUME' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '  📄 Bhaalavishvanathan C — Resume' },
+                    { type: 'output', text: '     Data Analyst / AI Engineer Edition' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  Download : <a href="Bhaalavishvanathan_C_Data_Analyst_Resume.pdf" download style="color:#ffd369">Click here to download PDF</a>' },
+                    { type: 'output', text: '  Preview  : <a href="Bhaalavishvanathan_C_Data_Analyst_Resume.pdf" target="_blank" style="color:#00c6ff">Click here to preview</a>' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  Covers: Education · Skills · Projects · Certifications · Experience' },
+                ]
+            },
+            contact: {
+                fn: () => [
+                    { type: 'highlight', text: '  ◉ CONTACT INFORMATION' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  📧 Email    : <a href="mailto:bhaalavishvanathan17@gmail.com" style="color:#f87171">bhaalavishvanathan17@gmail.com</a>' },
+                    { type: 'output', text: '  💼 LinkedIn : <a href="https://www.linkedin.com/in/bhaalavishvanathan-c-59576a312/" target="_blank" style="color:#60a5fa">linkedin.com/in/bhaalavishvanathan-c</a>' },
+                    { type: 'output', text: '  🐙 GitHub   : <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" style="color:#fff">github.com/bhaalavishvanathan17-glitch</a>' },
+                    { type: 'output', text: '  📞 Phone    : <a href="tel:+919361000742" style="color:#4ade80">+91 93610 00742</a>' },
+                    { type: 'output', text: '  💬 WhatsApp : <a href="https://wa.me/919361000742" target="_blank" style="color:#4ade80">wa.me/919361000742</a>' },
+                    { type: 'output', text: '  📸 Instagram: <a href="https://www.instagram.com/_bhaala_/" target="_blank" style="color:#e1a7f4">@_bhaala_</a>' },
+                    { type: 'output', text: '' },
+                    { type: 'output', text: '  → Contact form: contact.html', style:'color:#ffd369' },
+                ]
+            },
+            clear: {
+                fn: () => 'CLEAR'
+            }
+        };
+
+        /* Command history state */
+        let history = [];
+        let historyIndex = -1;
+
+        /* Print lines to terminal */
+        function printLines(lines) {
+            const body = document.getElementById('terminalBody');
+            const inputLine = document.getElementById('inputLine');
+
+            lines.forEach(line => {
+                const div = document.createElement('div');
+                div.className = 'terminal-line output';
+                if (line.type === 'highlight') div.classList.add('highlight');
+                if (line.type === 'success') div.classList.add('success');
+                if (line.type === 'error') div.classList.add('error');
+                if (line.style) div.style.cssText = line.style;
+                div.innerHTML = line.text;
+                body.insertBefore(div, inputLine);
+            });
+
+            const blank = document.createElement('div');
+            blank.className = 'terminal-line blank';
+            body.insertBefore(blank, inputLine);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        /* Print the prompt echo */
+        function printPrompt(cmd) {
+            const body = document.getElementById('terminalBody');
+            const inputLine = document.getElementById('inputLine');
+            const div = document.createElement('div');
+            div.className = 'terminal-line prompt';
+            div.innerHTML = `<span class="terminal-prompt-char">bhaala@portfolio:~$</span>&nbsp;${cmd}`;
+            body.insertBefore(div, inputLine);
+        }
+
+        /* Execute command */
+        function execCmd(cmd) {
+            const c = cmd.trim().toLowerCase();
+            if (!c) return;
+
+            history.unshift(cmd);
+            historyIndex = -1;
+            printPrompt(cmd);
+
+            if (c === 'clear') {
+                // Keep only welcome lines + input
+                const body = document.getElementById('terminalBody');
+                const inputLine = document.getElementById('inputLine');
+                Array.from(body.children).forEach(child => {
+                    if (child !== inputLine) body.removeChild(child);
+                });
+                return;
+            }
+
+            if (commands[c]) {
+                const result = commands[c].fn();
+                if (result !== 'CLEAR') printLines(result);
+            } else {
+                printLines([
+                    { type: 'error', text: `  bash: ${cmd}: command not found` },
+                    { type: 'output', text: '  Type \'help\' to see available commands.' },
+                ]);
+            }
+        }
+
+        /* Run from quick chip */
+        function runCmd(cmd) {
+            const input = document.getElementById('terminalInput');
+            input.value = '';
+            execCmd(cmd);
+            document.getElementById('terminalBody').scrollTop = 99999;
+        }
+
+        /* Key handler */
+        document.getElementById('terminalInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = this.value;
+                this.value = '';
+                execCmd(val);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex < history.length - 1) {
+                    historyIndex++;
+                    this.value = history[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    this.value = history[historyIndex];
+                } else {
+                    historyIndex = -1;
+                    this.value = '';
+                }
+            }
+        });
+
+        /* Focus input when clicking anywhere in terminal body */
+        document.getElementById('terminalBody').addEventListener('click', () => {
+            document.getElementById('terminalInput').focus();
+        });
+
+        /* Navbar auth */
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.querySelector('.nav-login-btn');
+            if (loginBtn && (localStorage.getItem('bhaala_logged_in') || sessionStorage.getItem('bhaala_logged_in'))) {
+                loginBtn.textContent = 'Logout';
+                loginBtn.href = '#';
+                loginBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    localStorage.removeItem('bhaala_logged_in');
+                    localStorage.removeItem('bhaala_user');
+                    sessionStorage.removeItem('bhaala_logged_in');
+                    sessionStorage.removeItem('bhaala_user');
+                    window.location.replace('login.html');
+                });
+            }
+            /* Auto-focus input */
+            document.getElementById('terminalInput').focus();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Session Guard -->
+    <script>
+        if (!localStorage.getItem('bhaala_logged_in') && !sessionStorage.getItem('bhaala_logged_in')) {
+            window.location.replace('login.html');
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Hub | Bhaala Vishvanathan</title>
+    <meta name="description" content="Recruiter Hub — Everything a hiring manager needs about Bhaala Vishvanathan: resume, skills, projects, certifications, and contact info.">
+    <meta property="og:title" content="Recruiter Hub | Bhaala Vishvanathan">
+    <meta property="og:description" content="Executive summary for recruiters — AI Engineer & Full Stack Developer.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Bhaala.css">
+</head>
+<body>
+
+    <!-- ═══════════════ NAVIGATION ═══════════════ -->
+    <nav class="navbar">
+        <a href="Bhaala.html" class="navbar-brand">BV</a>
+        <ul>
+            <li><a href="Bhaala.html">Home</a></li>
+            <li><a href="About Me.html">About Me</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="timeline.html">Timeline</a></li>
+            <li><a href="coding-profiles.html">Coding</a></li>
+            <li><a href="recruiter.html" class="active">Recruiter Hub</a></li>
+            <li><a href="terminal.html">Terminal</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="login.html" class="nav-login-btn">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <div class="recruiter-hero">
+        <span class="hero-badge">🎯 For Recruiters & Hiring Managers</span>
+        <h1>Recruiter Hub</h1>
+        <p style="color:rgba(255,255,255,0.6); font-size:17px; max-width:520px; margin:0 auto;">
+            Everything you need to evaluate Bhaala Vishvanathan — in one clean, executive-level page.
+        </p>
+    </div>
+
+    <!-- ═══════════════ CONTENT ═══════════════ -->
+    <div class="recruiter-section">
+        <div class="recruiter-grid">
+
+            <!-- Left — Profile Card -->
+            <aside>
+                <div class="recruiter-profile-card">
+                    <img src="Images/Bhaala.jpeg" alt="Bhaalavishvanathan C" class="recruiter-avatar" loading="lazy">
+                    <h2>Bhaalavishvanathan C</h2>
+                    <p class="role">AI Engineer & Full Stack Developer</p>
+
+                    <!-- Quick stats -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px;">
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+                            <div style="font-size:20px; font-weight:800; color:#f25050; font-family:'Inter',sans-serif;">B.Tech</div>
+                            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:3px;">AI & DS</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+                            <div style="font-size:20px; font-weight:800; color:#ffd369; font-family:'Inter',sans-serif;">2nd Yr</div>
+                            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:3px;">2023–2027</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+                            <div style="font-size:20px; font-weight:800; color:#00c6ff; font-family:'Inter',sans-serif;">14+</div>
+                            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:3px;">Certifications</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+                            <div style="font-size:20px; font-weight:800; color:#4ade80; font-family:'Inter',sans-serif;">2</div>
+                            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:3px;">Internships</div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Buttons -->
+                    <div class="recruiter-contact-links">
+                        <a href="mailto:bhaalavishvanathan17@gmail.com" class="recruiter-contact-btn email">
+                            📧 bhaalavishvanathan17@gmail.com
+                        </a>
+                        <a href="https://www.linkedin.com/in/bhaalavishvanathan-c-59576a312/" target="_blank" class="recruiter-contact-btn linkedin">
+                            💼 LinkedIn Profile
+                        </a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="recruiter-contact-btn github">
+                            🐙 GitHub Profile
+                        </a>
+                        <a href="https://wa.me/919361000742" target="_blank" class="recruiter-contact-btn whatsapp">
+                            💬 WhatsApp: +91 93610 00742
+                        </a>
+                    </div>
+
+                    <!-- Resume Buttons -->
+                    <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+                        <a href="Bhaalavishvanathan_C_Data_Analyst_Resume.pdf" download class="btn-primary" style="text-align:center; border-radius:12px;">
+                            📥 Download Resume
+                        </a>
+                        <a href="Bhaalavishvanathan_C_Data_Analyst_Resume.pdf" target="_blank" class="btn-outline" style="text-align:center; border-radius:12px;">
+                            👁️ Preview Resume
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right — Main Content -->
+            <main>
+                <div class="recruiter-main-card">
+
+                    <!-- About -->
+                    <div class="recruiter-info-block">
+                        <h3>👤 About</h3>
+                        <p style="font-size:14.5px; color:rgba(255,255,255,0.75); line-height:1.85;">
+                            Bhaalavishvanathan C (Bhaala) is a 2nd-year B.Tech student in AI & Data Science at Dhanalakshmi Srinivasan College of Engineering, Tamil Nadu. He is passionate about building real-world AI solutions, from NLP-powered health platforms to full-stack web applications with intelligent automation.
+                        </p>
+                        <p style="font-size:14.5px; color:rgba(255,255,255,0.75); line-height:1.85; margin-top:12px;">
+                            Bhaala brings a rare combination of <strong style="color:#ffd369">AI/ML depth</strong>, <strong style="color:#00c6ff">full-stack development</strong>, and <strong style="color:#4ade80">research experience</strong> — validated by 14+ certifications from Google, Microsoft, DeepLearning.AI, and more. He has also received professional offers from CubeAI Solutions and ZANE Tech.
+                        </p>
+                    </div>
+
+                    <!-- Technical Skills -->
+                    <div class="recruiter-info-block">
+                        <h3>🛠️ Technical Skills</h3>
+                        <div class="skills-tag-cloud">
+                            <span class="skill-chip">Python</span>
+                            <span class="skill-chip">TensorFlow</span>
+                            <span class="skill-chip">Scikit-learn</span>
+                            <span class="skill-chip">NLP</span>
+                            <span class="skill-chip">Computer Vision</span>
+                            <span class="skill-chip">XAI / SHAP</span>
+                            <span class="skill-chip">Pandas & NumPy</span>
+                            <span class="skill-chip">SQL</span>
+                            <span class="skill-chip">Power BI</span>
+                            <span class="skill-chip">Express.js</span>
+                            <span class="skill-chip">Node.js</span>
+                            <span class="skill-chip">PostgreSQL</span>
+                            <span class="skill-chip">MongoDB</span>
+                            <span class="skill-chip">HTML/CSS/JS</span>
+                            <span class="skill-chip">REST APIs</span>
+                            <span class="skill-chip">Microsoft Azure AI</span>
+                            <span class="skill-chip">Git & GitHub</span>
+                            <span class="skill-chip">Vercel</span>
+                            <span class="skill-chip">Jupyter Notebook</span>
+                            <span class="skill-chip">Linux</span>
+                        </div>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="recruiter-info-block">
+                        <h3>🎓 Education</h3>
+                        <div style="display:flex; flex-direction:column; gap:14px;">
+                            <div style="display:flex; gap:16px; align-items:flex-start;">
+                                <div style="width:46px; height:46px; border-radius:12px; background:rgba(248,19,19,0.1); border:1px solid rgba(248,19,19,0.2); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">🎓</div>
+                                <div>
+                                    <div style="font-weight:700; color:#fff; font-size:15px;">B.Tech — AI & Data Science</div>
+                                    <div style="color:#ffd369; font-size:13px; margin-top:3px;">Dhanalakshmi Srinivasan College of Engineering</div>
+                                    <div style="color:rgba(255,255,255,0.45); font-size:12px; margin-top:2px;">2023 – 2027 · Perambalur, Tamil Nadu</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Experience -->
+                    <div class="recruiter-info-block">
+                        <h3>💼 Professional Experience</h3>
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+                            <div style="display:flex; gap:16px; align-items:flex-start;">
+                                <div style="width:46px; height:46px; border-radius:12px; background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.2); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">🤖</div>
+                                <div>
+                                    <div style="font-weight:700; color:#fff; font-size:15px;">AI Developer Intern</div>
+                                    <div style="color:#4ade80; font-size:13px; margin-top:3px;">CubeAI Solutions Tech Pvt Ltd</div>
+                                    <div style="color:rgba(255,255,255,0.45); font-size:12px; margin-top:2px;">April 14, 2026 — Present</div>
+                                    <a href="certificates/Mr.%20Bhaalavishvanathan%20C%20-%20%20CAS%20-14042026-FY2766.pdf" target="_blank" style="font-size:12px; color:#ffd369; text-decoration:none; margin-top:4px; display:inline-block;">📄 View Offer Letter →</a>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:16px; align-items:flex-start;">
+                                <div style="width:46px; height:46px; border-radius:12px; background:rgba(0,198,255,0.1); border:1px solid rgba(0,198,255,0.2); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">🌐</div>
+                                <div>
+                                    <div style="font-weight:700; color:#fff; font-size:15px;">Full Stack Developer (Offer)</div>
+                                    <div style="color:#00c6ff; font-size:13px; margin-top:3px;">ZANE Tech Pvt Ltd</div>
+                                    <div style="color:rgba(255,255,255,0.45); font-size:12px; margin-top:2px;">December 17, 2025</div>
+                                    <a href="certificates/BHAALAVISHVANATHAN%20C%20COVER%20LETTER(1)%20ZANE.pdf" target="_blank" style="font-size:12px; color:#ffd369; text-decoration:none; margin-top:4px; display:inline-block;">📄 View Offer Letter →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements -->
+                    <div class="recruiter-info-block">
+                        <h3>🏆 Key Achievements</h3>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <div style="display:flex; gap:12px; align-items:center; padding:12px 16px; background:rgba(255,211,105,0.05); border:1px solid rgba(255,211,105,0.12); border-radius:12px;">
+                                <span style="font-size:22px;">🥉</span>
+                                <div>
+                                    <div style="font-weight:700; color:#ffd369; font-size:14px;">3rd Prize — HackXtreme'26</div>
+                                    <div style="font-size:12px; color:rgba(255,255,255,0.5);">24-Hour National Hackathon · April 2026</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:12px; align-items:center; padding:12px 16px; background:rgba(167,139,250,0.05); border:1px solid rgba(167,139,250,0.12); border-radius:12px;">
+                                <span style="font-size:22px;">📖</span>
+                                <div>
+                                    <div style="font-weight:700; color:#a78bfa; font-size:14px;">Research Presentation — ICIRIST-2026</div>
+                                    <div style="font-size:12px; color:rgba(255,255,255,0.5);">Explainable AI for Medical Diagnosis · March 2026</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:12px; align-items:center; padding:12px 16px; background:rgba(0,198,255,0.05); border:1px solid rgba(0,198,255,0.12); border-radius:12px;">
+                                <span style="font-size:22px;">📊</span>
+                                <div>
+                                    <div style="font-weight:700; color:#00c6ff; font-size:14px;">Google Data Analytics Professional Certificate</div>
+                                    <div style="font-size:12px; color:rgba(255,255,255,0.5);">Google · April 2026</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Highlights -->
+                    <div class="recruiter-info-block">
+                        <h3>🚀 Flagship Projects</h3>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <div style="padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.07); border-radius:14px;">
+                                <div style="font-weight:700; color:#fff; font-size:14px; margin-bottom:4px;">🧠 Mind Pulse AI</div>
+                                <div style="font-size:13px; color:rgba(255,255,255,0.55); margin-bottom:8px;">AI-powered mental health monitoring platform with NLP, mood tracking, CBT exercises, and PostgreSQL backend.</div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <span style="font-size:11px; background:rgba(248,19,19,0.08); border:1px solid rgba(248,19,19,0.15); color:#f87171; padding:3px 10px; border-radius:20px;">Python</span>
+                                    <span style="font-size:11px; background:rgba(248,19,19,0.08); border:1px solid rgba(248,19,19,0.15); color:#f87171; padding:3px 10px; border-radius:20px;">TensorFlow</span>
+                                    <span style="font-size:11px; background:rgba(248,19,19,0.08); border:1px solid rgba(248,19,19,0.15); color:#f87171; padding:3px 10px; border-radius:20px;">NLP</span>
+                                    <span style="font-size:11px; background:rgba(248,19,19,0.08); border:1px solid rgba(248,19,19,0.15); color:#f87171; padding:3px 10px; border-radius:20px;">Express.js</span>
+                                </div>
+                            </div>
+                            <div style="padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.07); border-radius:14px;">
+                                <div style="font-weight:700; color:#fff; font-size:14px; margin-bottom:4px;">🌐 Premium AI Portfolio</div>
+                                <div style="font-size:13px; color:rgba(255,255,255,0.55); margin-bottom:8px;">Enterprise-grade portfolio with AI chatbot, analytics dashboard, terminal mode, recruiter hub, auth system, and email integration.</div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <span style="font-size:11px; background:rgba(0,198,255,0.08); border:1px solid rgba(0,198,255,0.15); color:#00c6ff; padding:3px 10px; border-radius:20px;">Express.js</span>
+                                    <span style="font-size:11px; background:rgba(0,198,255,0.08); border:1px solid rgba(0,198,255,0.15); color:#00c6ff; padding:3px 10px; border-radius:20px;">PostgreSQL</span>
+                                    <span style="font-size:11px; background:rgba(0,198,255,0.08); border:1px solid rgba(0,198,255,0.15); color:#00c6ff; padding:3px 10px; border-radius:20px;">Vercel</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="projects.html" class="btn-primary" style="display:inline-block; margin-top:16px; border-radius:12px; font-size:13px; padding:10px 20px;">🚀 View All Projects →</a>
+                    </div>
+
+                    <!-- Schedule Meeting CTA -->
+                    <div class="recruiter-info-block" style="text-align:center; background:linear-gradient(135deg, rgba(248,19,19,0.06), rgba(255,211,105,0.04)); border-color:rgba(255,211,105,0.18);">
+                        <h3 style="justify-content:center;">📅 Schedule a Meeting</h3>
+                        <p style="font-size:14px; color:rgba(255,255,255,0.6); margin-bottom:20px;">Interested in discussing opportunities? Let's connect!</p>
+                        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+                            <a href="mailto:bhaalavishvanathan17@gmail.com?subject=Meeting Request — Portfolio" class="btn-primary" style="border-radius:12px; font-size:13px; padding:11px 22px;">📧 Email to Schedule</a>
+                            <a href="https://www.linkedin.com/in/bhaalavishvanathan-c-59576a312/" target="_blank" class="btn-outline" style="border-radius:12px; font-size:13px; padding:11px 22px;">💼 LinkedIn Message</a>
+                            <a href="https://wa.me/919361000742?text=Hi%20Bhaala!%20I%20found%20your%20portfolio%20and%20would%20like%20to%20discuss%20an%20opportunity." target="_blank" class="btn-outline" style="border-radius:12px; font-size:13px; padding:11px 22px; border-color:rgba(74,222,128,0.4); color:#4ade80;">💬 WhatsApp</a>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <footer class="footer">
+        © 2026 <span>Bhaalavishvanathan</span> — Built with passion & purpose.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.querySelector('.nav-login-btn');
+            if (loginBtn && (localStorage.getItem('bhaala_logged_in') || sessionStorage.getItem('bhaala_logged_in'))) {
+                loginBtn.textContent = 'Logout';
+                loginBtn.href = '#';
+                loginBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    localStorage.removeItem('bhaala_logged_in');
+                    localStorage.removeItem('bhaala_user');
+                    sessionStorage.removeItem('bhaala_logged_in');
+                    sessionStorage.removeItem('bhaala_user');
+                    window.location.replace('login.html');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

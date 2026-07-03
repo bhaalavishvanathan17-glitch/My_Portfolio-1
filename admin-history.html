@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bhaala | Admin — Login History & Email Log</title>
+    <title>Bhaala | Admin — Dashboard & Analytics</title>
     <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -446,6 +447,7 @@
     <div class="tab-switcher">
         <button class="tab-btn-sw active" id="tab-login-btn" onclick="switchTab('login')">🔐 Login History</button>
         <button class="tab-btn-sw" id="tab-email-btn" onclick="switchTab('email')">📧 Email Log</button>
+        <button class="tab-btn-sw" id="tab-analytics-btn" onclick="switchTab('analytics')">📊 Analytics</button>
     </div>
 
     <!-- Stats -->
@@ -614,6 +616,98 @@
             </div>
         </div>
     </div><!-- end email-log-section -->
+
+    <!-- ═══════════════ ANALYTICS SECTION ═══════════════ -->
+    <div class="email-log-section" id="analytics-section" style="display:none;">
+
+        <!-- Analytics Summary Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <div class="stat-label">Total Logins</div>
+                <div class="stat-value" id="a-total-logins">—</div>
+                <div class="stat-sub">All time</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📅</span>
+                <div class="stat-label">Today's Logins</div>
+                <div class="stat-value" id="a-today-logins">—</div>
+                <div class="stat-sub">Current date</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">👤</span>
+                <div class="stat-label">Unique Users</div>
+                <div class="stat-value" id="a-unique-users">—</div>
+                <div class="stat-sub">Distinct emails</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🌍</span>
+                <div class="stat-label">Countries</div>
+                <div class="stat-value" id="a-countries">—</div>
+                <div class="stat-sub">Unique locations</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">💻</span>
+                <div class="stat-label">Desktop</div>
+                <div class="stat-value" id="a-desktop">—</div>
+                <div class="stat-sub">Device type</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📱</span>
+                <div class="stat-label">Mobile</div>
+                <div class="stat-value" id="a-mobile">—</div>
+                <div class="stat-sub">Device type</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(380px,1fr)); gap:24px; margin-top:24px;">
+
+            <!-- Logins Per Day Chart -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:24px;">
+                <h3 style="font-size:15px; font-weight:700; color:#fff; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                    📈 Login Trend (Last 14 Days)
+                </h3>
+                <canvas id="loginTrendChart" height="200"></canvas>
+            </div>
+
+            <!-- Browser Distribution Chart -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:24px;">
+                <h3 style="font-size:15px; font-weight:700; color:#fff; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                    🌐 Browser Distribution
+                </h3>
+                <canvas id="browserChart" height="200"></canvas>
+            </div>
+
+            <!-- Device Type Chart -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:24px;">
+                <h3 style="font-size:15px; font-weight:700; color:#fff; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                    📱 Device Breakdown
+                </h3>
+                <canvas id="deviceChart" height="200"></canvas>
+            </div>
+
+            <!-- OS Distribution Chart -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:24px;">
+                <h3 style="font-size:15px; font-weight:700; color:#fff; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                    🖥️ OS Distribution
+                </h3>
+                <canvas id="osChart" height="200"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Top Users Table -->
+        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:24px; margin-top:24px;">
+            <h3 style="font-size:15px; font-weight:700; color:#fff; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                👥 Top Users by Login Count
+            </h3>
+            <div id="top-users-list" style="display:flex; flex-direction:column; gap:8px;">
+                <div style="color:rgba(255,255,255,0.35); text-align:center; padding:20px;">Loading analytics...</div>
+            </div>
+        </div>
+
+    </div><!-- end analytics-section -->
 
 </main>
 
@@ -850,20 +944,30 @@ function esc(str) {
 function switchTab(tab) {
     const loginSec  = document.getElementById('login-history-section');
     const emailSec  = document.getElementById('email-log-section');
+    const analyticsSec = document.getElementById('analytics-section');
     const loginBtn  = document.getElementById('tab-login-btn');
     const emailBtn  = document.getElementById('tab-email-btn');
+    const analyticsBtn = document.getElementById('tab-analytics-btn');
+
+    // Hide all
+    loginSec.classList.add('hidden');
+    emailSec.classList.remove('active');
+    if (analyticsSec) analyticsSec.classList.remove('active');
+    loginBtn.classList.remove('active');
+    emailBtn.classList.remove('active');
+    if (analyticsBtn) analyticsBtn.classList.remove('active');
 
     if (tab === 'login') {
         loginSec.classList.remove('hidden');
-        emailSec.classList.remove('active');
         loginBtn.classList.add('active');
-        emailBtn.classList.remove('active');
-    } else {
-        loginSec.classList.add('hidden');
+    } else if (tab === 'email') {
         emailSec.classList.add('active');
         emailBtn.classList.add('active');
-        loginBtn.classList.remove('active');
         if (!emailLogLoaded) loadEmailLog();
+    } else if (tab === 'analytics') {
+        if (analyticsSec) analyticsSec.classList.add('active');
+        if (analyticsBtn) analyticsBtn.classList.add('active');
+        if (!analyticsRendered) renderAnalytics();
     }
 }
 
@@ -1000,6 +1104,199 @@ function exportEmailLogCSV() {
     a.click();
     URL.revokeObjectURL(url);
     showToast(`✅ Exported ${filteredEmail.length} entries!`, 'success');
+}
+
+/* ══════════════════════════════════════════════
+   Analytics — Chart.js Visualizations
+══════════════════════════════════════════════ */
+let analyticsRendered = false;
+
+function renderAnalytics() {
+    analyticsRendered = true;
+    const data = allRecords;
+
+    if (!data.length) {
+        document.getElementById('top-users-list').innerHTML =
+            '<div style="color:rgba(255,255,255,0.35); text-align:center; padding:30px;">No login data available yet.</div>';
+        return;
+    }
+
+    /* ── Summary stats ── */
+    const today = new Date().toISOString().slice(0, 10);
+    const todayLogins = data.filter(r => {
+        const d = r.loginTime || r.login_time || '';
+        return d.startsWith(today);
+    }).length;
+    const uniqueEmails = new Set(data.map(r => (r.email || '').toLowerCase())).size;
+    const countries = new Set(data.map(r => {
+        const loc = r.location || '';
+        const parts = loc.split(',');
+        return parts[parts.length - 1]?.trim() || 'Unknown';
+    })).size;
+    const desktopCount = data.filter(r => (r.deviceType || r.device_type || '').toLowerCase().includes('desktop')).length;
+    const mobileCount = data.length - desktopCount;
+
+    document.getElementById('a-total-logins').textContent = data.length;
+    document.getElementById('a-today-logins').textContent = todayLogins;
+    document.getElementById('a-unique-users').textContent = uniqueEmails;
+    document.getElementById('a-countries').textContent = countries;
+    document.getElementById('a-desktop').textContent = desktopCount;
+    document.getElementById('a-mobile').textContent = mobileCount;
+
+    /* ── Chart defaults ── */
+    const chartFont = { family: 'Inter, sans-serif', size: 12 };
+    const gridColor = 'rgba(255,255,255,0.06)';
+    const tickColor = 'rgba(255,255,255,0.4)';
+
+    Chart.defaults.color = tickColor;
+    Chart.defaults.font = chartFont;
+
+    /* ── 1. Login Trend (last 14 days) ── */
+    const dayMap = {};
+    for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        dayMap[key] = 0;
+    }
+    data.forEach(r => {
+        const d = (r.loginTime || r.login_time || '').slice(0, 10);
+        if (dayMap.hasOwnProperty(d)) dayMap[d]++;
+    });
+    const trendLabels = Object.keys(dayMap).map(d => {
+        const dt = new Date(d + 'T00:00:00');
+        return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const trendData = Object.values(dayMap);
+
+    new Chart(document.getElementById('loginTrendChart'), {
+        type: 'line',
+        data: {
+            labels: trendLabels,
+            datasets: [{
+                label: 'Logins',
+                data: trendData,
+                borderColor: '#f25050',
+                backgroundColor: 'rgba(242,80,80,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#f25050',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: gridColor }, ticks: { color: tickColor, maxRotation: 45 } },
+                y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 1 }, beginAtZero: true }
+            }
+        }
+    });
+
+    /* ── 2. Browser Distribution (doughnut) ── */
+    const browsers = {};
+    data.forEach(r => {
+        const b = (r.browser || 'Unknown').split(' ')[0]; // "Chrome 126" → "Chrome"
+        browsers[b] = (browsers[b] || 0) + 1;
+    });
+    const bLabels = Object.keys(browsers).slice(0, 6);
+    const bData = bLabels.map(k => browsers[k]);
+    const bColors = ['#f25050', '#ffd369', '#00c6ff', '#4ade80', '#a78bfa', '#f97316'];
+
+    new Chart(document.getElementById('browserChart'), {
+        type: 'doughnut',
+        data: {
+            labels: bLabels,
+            datasets: [{ data: bData, backgroundColor: bColors, borderColor: 'rgba(0,0,0,0.3)', borderWidth: 2 }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle' } }
+            },
+            cutout: '60%'
+        }
+    });
+
+    /* ── 3. Device Breakdown (bar) ── */
+    const devices = {};
+    data.forEach(r => {
+        const dt = r.deviceType || r.device_type || 'Unknown';
+        devices[dt] = (devices[dt] || 0) + 1;
+    });
+    const dLabels = Object.keys(devices);
+    const dData = dLabels.map(k => devices[k]);
+    const dColors = dLabels.map((_, i) => ['#00c6ff', '#f25050', '#ffd369', '#4ade80'][i % 4]);
+
+    new Chart(document.getElementById('deviceChart'), {
+        type: 'bar',
+        data: {
+            labels: dLabels,
+            datasets: [{ label: 'Count', data: dData, backgroundColor: dColors, borderRadius: 8, barPercentage: 0.5 }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: tickColor } },
+                y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 1 }, beginAtZero: true }
+            }
+        }
+    });
+
+    /* ── 4. OS Distribution (polar area) ── */
+    const oses = {};
+    data.forEach(r => {
+        const os = (r.os || r.operating_system || 'Unknown').split(' ')[0]; // "Windows 11" → "Windows"
+        oses[os] = (oses[os] || 0) + 1;
+    });
+    const oLabels = Object.keys(oses).slice(0, 6);
+    const oData = oLabels.map(k => oses[k]);
+    const oColors = ['#f25050', '#00c6ff', '#4ade80', '#ffd369', '#a78bfa', '#fb923c'];
+
+    new Chart(document.getElementById('osChart'), {
+        type: 'polarArea',
+        data: {
+            labels: oLabels,
+            datasets: [{ data: oData, backgroundColor: oColors.map(c => c + '80'), borderColor: oColors, borderWidth: 2 }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true, pointStyle: 'circle' } }
+            },
+            scales: { r: { grid: { color: gridColor }, ticks: { display: false } } }
+        }
+    });
+
+    /* ── 5. Top Users Table ── */
+    const userCounts = {};
+    data.forEach(r => {
+        const key = (r.email || r.name || 'Anonymous').toLowerCase();
+        if (!userCounts[key]) userCounts[key] = { name: r.name || 'Unknown', email: r.email || '-', count: 0, lastLogin: r.loginTime || r.login_time || '-' };
+        userCounts[key].count++;
+        const lt = r.loginTime || r.login_time || '';
+        if (lt > userCounts[key].lastLogin) userCounts[key].lastLogin = lt;
+    });
+    const topUsers = Object.values(userCounts).sort((a, b) => b.count - a.count).slice(0, 10);
+    const tuContainer = document.getElementById('top-users-list');
+    tuContainer.innerHTML = topUsers.map((u, i) => `
+        <div style="display:flex; align-items:center; gap:16px; padding:12px 16px; background:rgba(255,255,255,${i===0 ? '0.05' : '0.02'}); border:1px solid rgba(255,255,255,0.06); border-radius:12px;">
+            <div style="width:32px; height:32px; border-radius:50%; background:${i===0 ? 'linear-gradient(135deg,#f25050,#ffd369)' : 'rgba(255,255,255,0.08)'}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; flex-shrink:0; font-family:Inter,sans-serif;">${i + 1}</div>
+            <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; color:#fff; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.name}</div>
+                <div style="font-size:12px; color:rgba(255,255,255,0.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.email}</div>
+            </div>
+            <div style="text-align:right; flex-shrink:0;">
+                <div style="font-size:18px; font-weight:800; color:#ffd369; font-family:Inter,sans-serif;">${u.count}</div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.3);">logins</div>
+            </div>
+        </div>
+    `).join('');
 }
 </script>
 

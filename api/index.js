@@ -959,6 +959,109 @@ app.get('/email-log', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════
+//  GET /admin/analytics — Aggregated visitor analytics
+//  Query param: key=<ADMIN_PASSWORD>
+// ══════════════════════════════════════════════════════════════
+app.get('/admin/analytics', async (req, res) => {
+    await ensureDbInit();
+    const providedKey = req.query.key || req.headers['x-admin-key'] || '';
+
+    if (!process.env.ADMIN_PASSWORD || providedKey !== process.env.ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+
+    try {
+        // Fetch raw login history (same source as admin dashboard)
+        const history = await dbGetLoginHistory();
+
+        if (!history || !history.length) {
+            return res.json({ success: true, analytics: {}, total: 0 });
+        }
+
+        // ── Date helpers ──────────────────────────────────────
+        const today = new Date().toISOString().slice(0, 10);
+
+        // ── Aggregation helpers ───────────────────────────────
+        const countBy = (arr, keyFn) => {
+            const map = {};
+            arr.forEach(item => {
+                const k = keyFn(item) || 'Unknown';
+                map[k] = (map[k] || 0) + 1;
+            });
+            return map;
+        };
+
+        const todayLogins   = history.filter(r => (r.loginTime || r.login_time || '').startsWith(today)).length;
+        const uniqueEmails  = new Set(history.map(r => (r.email || '').toLowerCase())).size;
+
+        // Locations — extract country (last comma-separated part)
+        const uniqueCountries = new Set(history.map(r => {
+            const loc   = r.location || '';
+            const parts = loc.split(',');
+            return (parts[parts.length - 1] || '').trim() || 'Unknown';
+        })).size;
+
+        // Browser stats — strip version number
+        const browserMap = countBy(history, r => {
+            const b = r.browser || 'Unknown';
+            return b.split(' ')[0]; // "Chrome 126" → "Chrome"
+        });
+
+        // Device type stats
+        const deviceMap = countBy(history, r => r.deviceType || r.device_type || 'Unknown');
+
+        // OS stats — strip version
+        const osMap = countBy(history, r => {
+            const os = r.os || r.operating_system || 'Unknown';
+            return os.split(' ')[0]; // "Windows 11" → "Windows"
+        });
+
+        // Login trend — last 30 days
+        const trendMap = {};
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            trendMap[d.toISOString().slice(0, 10)] = 0;
+        }
+        history.forEach(r => {
+            const d = (r.loginTime || r.login_time || '').slice(0, 10);
+            if (Object.prototype.hasOwnProperty.call(trendMap, d)) trendMap[d]++;
+        });
+
+        // Top users
+        const userMap = {};
+        history.forEach(r => {
+            const key = (r.email || r.name || 'anonymous').toLowerCase();
+            if (!userMap[key]) {
+                userMap[key] = { name: r.name || 'Unknown', email: r.email || '', count: 0, lastLogin: '' };
+            }
+            userMap[key].count++;
+            const lt = r.loginTime || r.login_time || '';
+            if (lt > userMap[key].lastLogin) userMap[key].lastLogin = lt;
+        });
+        const topUsers = Object.values(userMap).sort((a, b) => b.count - a.count).slice(0, 10);
+
+        return res.json({
+            success   : true,
+            total     : history.length,
+            today     : todayLogins,
+            unique    : uniqueEmails,
+            countries : uniqueCountries,
+            browsers  : browserMap,
+            devices   : deviceMap,
+            os        : osMap,
+            trend     : trendMap,
+            topUsers  : topUsers
+        });
+
+    } catch (err) {
+        console.error('Analytics error:', err.message);
+        return res.status(500).json({ success: false, message: 'Error generating analytics.' });
+    }
+});
+
+
+// ══════════════════════════════════════════════════════════════
 //  Start Server (for local standalone testing)
 // ══════════════════════════════════════════════════════════════
 if (require.main === module || !process.env.VERCEL) {

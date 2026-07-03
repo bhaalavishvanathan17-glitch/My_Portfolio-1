@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Session Guard -->
+    <script>
+        if (!localStorage.getItem('bhaala_logged_in') && !sessionStorage.getItem('bhaala_logged_in')) {
+            window.location.replace('login.html');
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | Bhaala Vishvanathan</title>
+    <meta name="description" content="Explore Bhaala Vishvanathan's AI, Machine Learning, and Full Stack projects including Mind Pulse AI and more.">
+    <meta property="og:title" content="Projects | Bhaala Vishvanathan">
+    <meta property="og:description" content="AI, ML, and Full Stack projects by Bhaalavishvanathan C.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Bhaala.css">
+</head>
+<body>
+
+    <!-- ═══════════════ NAVIGATION ═══════════════ -->
+    <nav class="navbar">
+        <a href="Bhaala.html" class="navbar-brand">BV</a>
+        <ul>
+            <li><a href="Bhaala.html">Home</a></li>
+            <li><a href="About Me.html">About Me</a></li>
+            <li><a href="projects.html" class="active">Projects</a></li>
+            <li><a href="timeline.html">Timeline</a></li>
+            <li><a href="coding-profiles.html">Coding</a></li>
+            <li><a href="recruiter.html">Recruiter Hub</a></li>
+            <li><a href="terminal.html">Terminal</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="login.html" class="nav-login-btn">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <div class="projects-hero">
+        <span class="hero-badge">💻 My Work</span>
+        <h1>Projects Showcase</h1>
+        <p>AI systems, full stack applications, and research projects built with passion and precision</p>
+        <!-- Filter Buttons -->
+        <div class="filter-container" style="margin-top:10px;">
+            <button class="filter-btn active" onclick="filterProjects('all')">All Projects</button>
+            <button class="filter-btn" onclick="filterProjects('ai-ml')">AI & ML</button>
+            <button class="filter-btn" onclick="filterProjects('fullstack')">Full Stack</button>
+            <button class="filter-btn" onclick="filterProjects('data')">Data Science</button>
+            <button class="filter-btn" onclick="filterProjects('research')">Research</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════ PROJECTS GRID ═══════════════ -->
+    <section class="projects-section" aria-label="Project Showcase">
+        <div class="projects-grid" id="projectsGrid">
+
+            <!-- 1. Mind Pulse AI -->
+            <div class="project-card" data-category="ai-ml">
+                <div class="project-card-banner" style="background: linear-gradient(135deg, rgba(248,19,19,0.2), rgba(100,0,200,0.2));">
+                    <span>🧠</span>
+                </div>
+                <div class="project-card-body">
+                    <span class="project-category-badge badge-ai">AI & ML</span>
+                    <h3>Mind Pulse AI</h3>
+                    <p>A full-stack AI-powered mental health monitoring platform that analyzes user responses using NLP and ML models to provide early mental health assessments, wellness tips, and personalized insights.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">TensorFlow</span>
+                        <span class="tech-tag">NLP</span>
+                        <span class="tech-tag">Express.js</span>
+                        <span class="tech-tag">PostgreSQL</span>
+                    </div>
+                    <div class="project-actions">
+                        <a href="project-mindpulse.html" class="btn-project-primary">🔍 View Details</a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-github">⭐ GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Explainable AI for Medical Diagnosis -->
+            <div class="project-card" data-category="research">
+                <div class="project-card-banner" style="background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(0,100,200,0.2));">
+                    <span>🩺</span>
+                </div>
+                <div class="project-card-body">
+                    <span class="project-category-badge badge-ai">Research</span>
+                    <h3>Explainable AI for Medical Diagnosis</h3>
+                    <p>Research paper exploring XAI techniques (LIME, SHAP, Grad-CAM) to make AI diagnostic decisions transparent and interpretable for medical professionals. Presented at ICIRIST-2026.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">XAI</span>
+                        <span class="tech-tag">LIME</span>
+                        <span class="tech-tag">SHAP</span>
+                        <span class="tech-tag">Grad-CAM</span>
+                    </div>
+                    <div class="project-actions">
+                        <a href="certificates/International%20Conference.pdf" target="_blank" class="btn-project-primary">📄 View Paper</a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-github">⭐ GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. AI Portfolio Website -->
+            <div class="project-card" data-category="fullstack">
+                <div class="project-card-banner" style="background: linear-gradient(135deg, rgba(0,198,255,0.2), rgba(0,50,100,0.2));">
+                    <span>🌐</span>
+                </div>
+                <div class="project-card-body">
+                    <span class="project-category-badge badge-fullstack">Full Stack</span>
+                    <h3>Premium AI Portfolio Website</h3>
+                    <p>This portfolio — an enterprise-grade web app with AI chatbot, admin analytics dashboard, terminal mode, recruiter hub, PostgreSQL + JSON fallback backend, email system, and 10+ features.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">HTML/CSS/JS</span>
+                        <span class="tech-tag">Express.js</span>
+                        <span class="tech-tag">PostgreSQL</span>
+                        <span class="tech-tag">Resend</span>
+                        <span class="tech-tag">Vercel</span>
+                    </div>
+                    <div class="project-actions">
+                        <a href="Bhaala.html" class="btn-project-primary">🚀 Live Demo</a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-github">⭐ GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Data Analytics Dashboard -->
+            <div class="project-card" data-category="data">
+                <div class="project-card-banner" style="background: linear-gradient(135deg, rgba(255,211,105,0.2), rgba(200,80,0,0.15));">
+                    <span>📊</span>
+                </div>
+                <div class="project-card-body">
+                    <span class="project-category-badge badge-data">Data Science</span>
+                    <h3>Interactive Data Analytics Dashboard</h3>
+                    <p>A comprehensive data analytics dashboard for business intelligence — visualizing KPIs, trends, and metrics using interactive charts, real-time filters, and automated reporting capabilities.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Pandas</span>
+                        <span class="tech-tag">Power BI</span>
+                        <span class="tech-tag">SQL</span>
+                        <span class="tech-tag">Matplotlib</span>
+                    </div>
+                    <div class="project-actions">
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-primary">🔍 View Project</a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-github">⭐ GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Azure AI Solutions -->
+            <div class="project-card" data-category="ai-ml">
+                <div class="project-card-banner" style="background: linear-gradient(135deg, rgba(0,100,255,0.2), rgba(0,200,255,0.15));">
+                    <span>☁️</span>
+                </div>
+                <div class="project-card-body">
+                    <span class="project-category-badge badge-ai">Cloud AI</span>
+                    <h3>Microsoft Azure AI Solutions</h3>
+                    <p>Implemented and deployed multiple AI solutions on Microsoft Azure — including Computer Vision APIs, Text Analytics, Language Understanding (LUIS), and Azure Machine Learning pipelines.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Azure</span>
+                        <span class="tech-tag">Cognitive Services</span>
+                        <span class="tech-tag">Azure ML</span>
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">REST API</span>
+                    </div>
+                    <div class="project-actions">
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-primary">🔍 View Project</a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-github">⭐ GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. ML Prediction Engine -->
+            <div class="project-card" data-category="ai-ml">
+                <div class="project-card-banner" style="background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(0,100,50,0.2));">
+                    <span>⚙️</span>
+                </div>
+                <div class="project-card-body">
+                    <span class="project-category-badge badge-ai">Machine Learning</span>
+                    <h3>ML Prediction Engine</h3>
+                    <p>A general-purpose machine learning prediction engine supporting multiple classification and regression algorithms. Features automated model selection, hyperparameter tuning, and performance comparison dashboards.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Scikit-learn</span>
+                        <span class="tech-tag">NumPy</span>
+                        <span class="tech-tag">Flask</span>
+                        <span class="tech-tag">Jupyter</span>
+                    </div>
+                    <div class="project-actions">
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-primary">🔍 View Project</a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-github">⭐ GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Admin Dashboard -->
+            <div class="project-card" data-category="fullstack">
+                <div class="project-card-banner" style="background: linear-gradient(135deg, rgba(248,19,19,0.15), rgba(0,0,0,0.3));">
+                    <span>🛡️</span>
+                </div>
+                <div class="project-card-body">
+                    <span class="project-category-badge badge-fullstack">Full Stack</span>
+                    <h3>Secure Admin Analytics Dashboard</h3>
+                    <p>A secure admin panel with password-gated access, login history tracking, email delivery logs, device/browser analytics, and a full activity monitoring system. Supports PostgreSQL and JSON fallback.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Express.js</span>
+                        <span class="tech-tag">PostgreSQL</span>
+                        <span class="tech-tag">Chart.js</span>
+                        <span class="tech-tag">bcrypt</span>
+                        <span class="tech-tag">ua-parser-js</span>
+                    </div>
+                    <div class="project-actions">
+                        <a href="admin-history.html" class="btn-project-primary">🔍 Admin Panel</a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-github">⭐ GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. NLP Text Classifier -->
+            <div class="project-card" data-category="ai-ml">
+                <div class="project-card-banner" style="background: linear-gradient(135deg, rgba(251,146,60,0.2), rgba(200,0,100,0.15));">
+                    <span>📝</span>
+                </div>
+                <div class="project-card-body">
+                    <span class="project-category-badge badge-ai">NLP</span>
+                    <h3>NLP Text Classification System</h3>
+                    <p>A natural language processing text classification pipeline using transformers and traditional ML approaches. Applied for sentiment analysis, topic modeling, and intent detection across multiple domains.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">NLTK</span>
+                        <span class="tech-tag">Transformers</span>
+                        <span class="tech-tag">TF-IDF</span>
+                        <span class="tech-tag">FastAPI</span>
+                    </div>
+                    <div class="project-actions">
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-primary">🔍 View Project</a>
+                        <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="btn-project-github">⭐ GitHub</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <footer class="footer">
+        © 2026 <span>Bhaalavishvanathan</span> — Built with passion & purpose.
+    </footer>
+
+    <script>
+        /* Navbar login/logout */
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.querySelector('.nav-login-btn');
+            if (loginBtn && (localStorage.getItem('bhaala_logged_in') || sessionStorage.getItem('bhaala_logged_in'))) {
+                loginBtn.textContent = 'Logout';
+                loginBtn.href = '#';
+                loginBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    localStorage.removeItem('bhaala_logged_in');
+                    localStorage.removeItem('bhaala_user');
+                    sessionStorage.removeItem('bhaala_logged_in');
+                    sessionStorage.removeItem('bhaala_user');
+                    window.location.replace('login.html');
+                });
+            }
+        });
+
+        /* Project filter */
+        function filterProjects(category) {
+            const btns = document.querySelectorAll('.filter-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            const activeBtn = Array.from(btns).find(b => b.getAttribute('onclick').includes(category));
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const cards = document.querySelectorAll('.project-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'flex';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(15px)';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                        card.style.transition = 'all 0.4s ease';
+                    }, 50);
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

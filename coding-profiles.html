@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Session Guard -->
+    <script>
+        if (!localStorage.getItem('bhaala_logged_in') && !sessionStorage.getItem('bhaala_logged_in')) {
+            window.location.replace('login.html');
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Profiles | Bhaala Vishvanathan</title>
+    <meta name="description" content="Bhaala Vishvanathan's coding profiles — GitHub repositories, LeetCode stats, HackerRank badges, and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Bhaala.css">
+</head>
+<body>
+
+    <!-- ═══════════════ NAVIGATION ═══════════════ -->
+    <nav class="navbar">
+        <a href="Bhaala.html" class="navbar-brand">BV</a>
+        <ul>
+            <li><a href="Bhaala.html">Home</a></li>
+            <li><a href="About Me.html">About Me</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="timeline.html">Timeline</a></li>
+            <li><a href="coding-profiles.html" class="active">Coding</a></li>
+            <li><a href="recruiter.html">Recruiter Hub</a></li>
+            <li><a href="terminal.html">Terminal</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="login.html" class="nav-login-btn">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <div class="coding-hero">
+        <span class="hero-badge">💻 Dev Activity</span>
+        <h1>Coding Profiles</h1>
+        <p style="color:rgba(255,255,255,0.6); font-size:17px; max-width:500px; margin:0 auto;">
+            Live statistics from GitHub, LeetCode, and HackerRank — a transparent view of coding activity.
+        </p>
+    </div>
+
+    <!-- ═══════════════ GITHUB CONTRIBUTION GRAPH ═══════════════ -->
+    <div class="coding-section" style="padding-top:50px; padding-bottom:0;">
+        <div class="github-contrib-embed">
+            <h3 style="font-size:17px; font-weight:700; color:#fff; margin-bottom:16px; text-align:left;">
+                🐙 GitHub Contribution Activity — @bhaalavishvanathan17-glitch
+            </h3>
+            <!-- GitHub readme stats via public API -->
+            <img
+                src="https://github-readme-stats.vercel.app/api?username=bhaalavishvanathan17-glitch&show_icons=true&theme=dark&bg_color=0d1117&title_color=f25050&icon_color=ffd369&text_color=ffffff&border_color=30363d&hide_border=false&count_private=true"
+                alt="Bhaala's GitHub Stats"
+                loading="lazy"
+                onerror="this.style.display='none'; document.getElementById('githubFallback').style.display='block';"
+            >
+            <!-- Streak stats -->
+            <img
+                src="https://github-readme-streak-stats.herokuapp.com/?user=bhaalavishvanathan17-glitch&theme=dark&background=0d1117&ring=f25050&fire=ffd369&currStreakLabel=ffd369&border=30363d"
+                alt="Bhaala's GitHub Streak"
+                loading="lazy"
+                style="margin-top:16px;"
+                onerror="this.style.display='none';"
+            >
+            <!-- Contribution graph -->
+            <img
+                src="https://github-readme-activity-graph.vercel.app/graph?username=bhaalavishvanathan17-glitch&theme=react-dark&bg_color=0d1117&color=00c6ff&line=f25050&point=ffd369&area=true&hide_border=true"
+                alt="Bhaala's Contribution Graph"
+                loading="lazy"
+                style="margin-top:16px; width:100%;"
+                onerror="this.style.display='none';"
+            >
+            <div id="githubFallback" style="display:none; padding:20px; color:rgba(255,255,255,0.4); font-size:14px;">
+                GitHub stats will appear when connected. Visit <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" style="color:#00c6ff;">GitHub profile directly →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ PLATFORM CARDS ═══════════════ -->
+    <section class="coding-section" aria-label="Coding Platform Statistics">
+        <div class="coding-profiles-grid">
+
+            <!-- GitHub Card -->
+            <div class="coding-platform-card github">
+                <span class="platform-icon-large">🐙</span>
+                <div class="platform-name">GitHub</div>
+                <div class="platform-username">@bhaalavishvanathan17-glitch</div>
+                <div class="platform-stats-grid">
+                    <div class="platform-stat">
+                        <span class="stat-value" id="ghRepos">15+</span>
+                        <div class="stat-label">Repositories</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value" id="ghStars">⭐</span>
+                        <div class="stat-label">Stars</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value">Active</span>
+                        <div class="stat-label">Status</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value">2023</span>
+                        <div class="stat-label">Member Since</div>
+                    </div>
+                </div>
+                <a href="https://github.com/bhaalavishvanathan17-glitch" target="_blank" class="platform-visit-btn github-btn">
+                    🐙 Visit GitHub
+                </a>
+            </div>
+
+            <!-- LeetCode Card -->
+            <div class="coding-platform-card leetcode">
+                <span class="platform-icon-large">🧩</span>
+                <div class="platform-name">LeetCode</div>
+                <div class="platform-username">@bhaalavishvanathan</div>
+                <div class="platform-stats-grid">
+                    <div class="platform-stat">
+                        <span class="stat-value">50+</span>
+                        <div class="stat-label">Problems Solved</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value">Easy+Med</span>
+                        <div class="stat-label">Levels</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value">Python</span>
+                        <div class="stat-label">Main Language</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value">Growing</span>
+                        <div class="stat-label">Progress</div>
+                    </div>
+                </div>
+                <a href="https://leetcode.com" target="_blank" class="platform-visit-btn leetcode-btn">
+                    🧩 Visit LeetCode
+                </a>
+            </div>
+
+            <!-- HackerRank Card -->
+            <div class="coding-platform-card hackerrank">
+                <span class="platform-icon-large">⚡</span>
+                <div class="platform-name">HackerRank</div>
+                <div class="platform-username">@bhaalavishvanathan17</div>
+                <div class="platform-stats-grid">
+                    <div class="platform-stat">
+                        <span class="stat-value">5★</span>
+                        <div class="stat-label">Python</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value">Gold</span>
+                        <div class="stat-label">Badge</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value">SQL</span>
+                        <div class="stat-label">Certified</div>
+                    </div>
+                    <div class="platform-stat">
+                        <span class="stat-value">Active</span>
+                        <div class="stat-label">Status</div>
+                    </div>
+                </div>
+                <a href="https://www.hackerrank.com" target="_blank" class="platform-visit-btn hackerrank-btn">
+                    ⚡ Visit HackerRank
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Most Used Languages -->
+        <div style="max-width:100%; margin-top:40px;">
+            <div class="github-contrib-embed" style="max-width:none;">
+                <h3 style="font-size:17px; font-weight:700; color:#fff; margin-bottom:16px; text-align:left;">
+                    📊 Most Used Languages
+                </h3>
+                <img
+                    src="https://github-readme-stats.vercel.app/api/top-langs/?username=bhaalavishvanathan17-glitch&layout=compact&theme=dark&bg_color=0d1117&title_color=f25050&text_color=ffffff&border_color=30363d&hide_border=false&langs_count=8"
+                    alt="Most Used Languages"
+                    loading="lazy"
+                    onerror="this.parentElement.innerHTML += '<p style=\"color:rgba(255,255,255,0.4); font-size:14px;\">Connect to GitHub to see language stats.</p>'; this.style.display='none';"
+                >
+            </div>
+        </div>
+
+        <!-- Coding Philosophy -->
+        <div style="margin-top:40px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.07); border-radius:22px; padding:36px; backdrop-filter:blur(12px);">
+            <h3 style="font-size:20px; font-weight:700; color:#fff; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+                🧠 Coding Philosophy
+            </h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px;">
+                <div style="background:rgba(248,19,19,0.05); border:1px solid rgba(248,19,19,0.15); border-radius:14px; padding:20px;">
+                    <div style="font-size:26px; margin-bottom:10px;">🎯</div>
+                    <div style="font-weight:700; color:#fff; font-size:14px; margin-bottom:6px;">Problem-First Thinking</div>
+                    <div style="font-size:13px; color:rgba(255,255,255,0.55); line-height:1.6;">Understand the problem deeply before writing a single line of code. Clean solutions beat clever hacks.</div>
+                </div>
+                <div style="background:rgba(0,198,255,0.05); border:1px solid rgba(0,198,255,0.15); border-radius:14px; padding:20px;">
+                    <div style="font-size:26px; margin-bottom:10px;">📦</div>
+                    <div style="font-weight:700; color:#fff; font-size:14px; margin-bottom:6px;">Modular Architecture</div>
+                    <div style="font-size:13px; color:rgba(255,255,255,0.55); line-height:1.6;">Write code that is reusable, maintainable, and readable. Every function should do one thing well.</div>
+                </div>
+                <div style="background:rgba(74,222,128,0.05); border:1px solid rgba(74,222,128,0.15); border-radius:14px; padding:20px;">
+                    <div style="font-size:26px; margin-bottom:10px;">🚀</div>
+                    <div style="font-weight:700; color:#fff; font-size:14px; margin-bottom:6px;">Ship & Iterate</div>
+                    <div style="font-size:13px; color:rgba(255,255,255,0.55); line-height:1.6;">Build working solutions fast, then improve. Real-world practice beats theoretical perfection.</div>
+                </div>
+                <div style="background:rgba(255,211,105,0.05); border:1px solid rgba(255,211,105,0.15); border-radius:14px; padding:20px;">
+                    <div style="font-size:26px; margin-bottom:10px;">🌱</div>
+                    <div style="font-weight:700; color:#fff; font-size:14px; margin-bottom:6px;">Learn Every Day</div>
+                    <div style="font-size:13px; color:rgba(255,255,255,0.55); line-height:1.6;">Technology evolves rapidly. Commit to daily learning — papers, docs, projects, and peer code.</div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <footer class="footer">
+        © 2026 <span>Bhaalavishvanathan</span> — Built with passion & purpose.
+    </footer>
+
+    <script>
+        /* Auth */
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.querySelector('.nav-login-btn');
+            if (loginBtn && (localStorage.getItem('bhaala_logged_in') || sessionStorage.getItem('bhaala_logged_in'))) {
+                loginBtn.textContent = 'Logout';
+                loginBtn.href = '#';
+                loginBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    localStorage.removeItem('bhaala_logged_in');
+                    localStorage.removeItem('bhaala_user');
+                    sessionStorage.removeItem('bhaala_logged_in');
+                    sessionStorage.removeItem('bhaala_user');
+                    window.location.replace('login.html');
+                });
+            }
+
+            /* Fetch GitHub public repo count via public API */
+            fetch('https://api.github.com/users/bhaalavishvanathan17-glitch')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.public_repos !== undefined) {
+                        document.getElementById('ghRepos').textContent = data.public_repos;
+                    }
+                    if (data.public_gists !== undefined) {
+                        // Could use this for stars placeholder
+                    }
+                })
+                .catch(() => { /* Keep static fallback */ });
+        });
+    </script>
+</body>
+</html>

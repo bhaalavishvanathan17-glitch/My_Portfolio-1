@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin-history.html
+Disallow: /users.json
+Disallow: /login_history.json
+Disallow: /email_log.jsonl
+Disallow: /api/
+
+Sitemap: https://bhaala.vercel.app/sitemap.xml
