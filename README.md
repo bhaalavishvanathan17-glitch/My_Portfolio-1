@@ -140,3 +140,4 @@ Place your PDF at `frontend/public/resume.pdf` — the Hero download button will
 ## 🔗 Update Social Links
 
 Edit `frontend/src/components/Contact.jsx` — update the `LINKS` array with your real GitHub and LinkedIn URLs.
+# My_Portfolio-1
