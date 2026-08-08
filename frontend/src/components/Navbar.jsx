@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { useAuth }  from '../context/AuthContext';
 import './Navbar.css';
 
 export default function Navbar() {
   const { theme, toggle } = useTheme();
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  const [scrolled,    setScrolled]    = useState(false);
-  const [menuOpen,    setMenuOpen]    = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -17,14 +14,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close menu on route change
   const closeMenu = () => setMenuOpen(false);
-
-  const handleLogout = async () => {
-    await signOut();
-    closeMenu();
-    navigate('/login');
-  };
 
   return (
     <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
@@ -49,16 +39,6 @@ export default function Navbar() {
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
 
-        {user ? (
-          <button className="nav-btn logout-btn" onClick={handleLogout}>
-            Sign Out
-          </button>
-        ) : (
-          <NavLink to="/login" className="nav-btn login-btn" onClick={closeMenu}>
-            Login
-          </NavLink>
-        )}
-
         {/* Hamburger */}
         <button
           className={`hamburger${menuOpen ? ' open' : ''}`}
@@ -78,12 +58,8 @@ export default function Navbar() {
         <button className="theme-toggle-mobile" onClick={() => { toggle(); closeMenu(); }}>
           {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
         </button>
-        {user ? (
-          <button className="nav-btn logout-btn" onClick={handleLogout}>Sign Out</button>
-        ) : (
-          <NavLink to="/login" className="nav-btn login-btn" onClick={closeMenu}>Login</NavLink>
-        )}
       </div>
     </nav>
   );
 }
+

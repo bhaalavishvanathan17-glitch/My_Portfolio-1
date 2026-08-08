@@ -1,11 +1,9 @@
 import { useState, useRef } from 'react';
 import emailjs from '@emailjs/browser';
+import { supabase } from '../lib/supabaseClient';
 import './Contact.css';
 
-// ── EmailJS credentials (set these in frontend/.env) ──────────────────────────
-// VITE_EMAILJS_SERVICE_ID   = your EmailJS service ID  (e.g. service_xxxxxxx)
-// VITE_EMAILJS_TEMPLATE_ID  = your EmailJS template ID (e.g. template_xxxxxxx)
-// VITE_EMAILJS_PUBLIC_KEY   = your EmailJS public key  (e.g. aBcDeFgHiJkLmNoP)
+// ── EmailJS credentials (set these in frontend/.env if using EmailJS) ─────────
 const EJS_SERVICE  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EJS_TEMPLATE = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const EJS_KEY      = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
@@ -27,32 +25,41 @@ export default function Contact() {
   async function handleSubmit(e) {
     e.preventDefault();
     setErrorMsg('');
-
-    // Guard: make sure EmailJS keys are configured
-    if (!EJS_SERVICE || !EJS_TEMPLATE || !EJS_KEY) {
-      setErrorMsg(
-        '⚠️ Email not configured yet. Please add VITE_EMAILJS_SERVICE_ID, ' +
-        'VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY to your frontend/.env file.'
-      );
-      setStatus('error');
-      setTimeout(() => setStatus('idle'), 6000);
-      return;
-    }
-
     setStatus('sending');
 
+    const formData = new FormData(formRef.current);
+    const name = formData.get('from_name');
+    const email = formData.get('reply_to');
+    const message = formData.get('message');
+
     try {
-      await emailjs.sendForm(EJS_SERVICE, EJS_TEMPLATE, formRef.current, { publicKey: EJS_KEY });
+      // 1. Save to Supabase DB if configured
+      if (supabase) {
+        const { error: sbError } = await supabase
+          .from('contacts')
+          .insert([{ name, email, message }]);
+
+        if (sbError) {
+          console.warn('Supabase insert warning:', sbError.message);
+        }
+      }
+
+      // 2. Send via EmailJS if configured
+      if (EJS_SERVICE && EJS_TEMPLATE && EJS_KEY && !EJS_SERVICE.includes('YOUR_')) {
+        await emailjs.sendForm(EJS_SERVICE, EJS_TEMPLATE, formRef.current, { publicKey: EJS_KEY });
+      }
+
       setStatus('sent');
       formRef.current.reset();
     } catch (err) {
-      console.error('EmailJS error:', err);
+      console.error('Submission error:', err);
       setErrorMsg(`❌ Failed to send: ${err?.text || err?.message || 'Unknown error'}`);
       setStatus('error');
     }
 
     setTimeout(() => { setStatus('idle'); setErrorMsg(''); }, 5000);
   }
+
 
   const btnLabel = {
     idle:    '🚀 Send Message',
