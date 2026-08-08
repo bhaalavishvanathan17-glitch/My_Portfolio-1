@@ -1,11 +1,7 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/register", "destination": "/api/index.js" },
-    { "source": "/login", "destination": "/api/index.js" },
     { "source": "/contact", "destination": "/api/index.js" },
-    { "source": "/admin/login-history", "destination": "/api/index.js" },
-    { "source": "/admin/analytics", "destination": "/api/index.js" },
     { "source": "/email-log", "destination": "/api/index.js" },
     { "source": "/health", "destination": "/api/index.js" },
     { "source": "/test-email", "destination": "/api/index.js" }

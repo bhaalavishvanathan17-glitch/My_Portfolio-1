@@ -2,12 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Session Guard -->
-    <script>
-        if (!localStorage.getItem('bhaala_logged_in') && !sessionStorage.getItem('bhaala_logged_in')) {
-            window.location.replace('login.html');
-        }
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recruiter Hub | Bhaala Vishvanathan</title>
     <meta name="description" content="Recruiter Hub — Everything a hiring manager needs about Bhaala Vishvanathan: resume, skills, projects, certifications, and contact info.">
@@ -22,9 +16,9 @@
 
     <!-- ═══════════════ NAVIGATION ═══════════════ -->
     <nav class="navbar">
-        <a href="Bhaala.html" class="navbar-brand">BV</a>
+        <a href="index.html" class="navbar-brand">BV</a>
         <ul>
-            <li><a href="Bhaala.html">Home</a></li>
+            <li><a href="index.html">Home</a></li>
             <li><a href="About Me.html">About Me</a></li>
             <li><a href="projects.html">Projects</a></li>
             <li><a href="timeline.html">Timeline</a></li>
@@ -32,8 +26,7 @@
             <li><a href="recruiter.html" class="active">Recruiter Hub</a></li>
             <li><a href="terminal.html">Terminal</a></li>
             <li><a href="contact.html">Contact</a></li>
-            <li><a href="login.html" class="nav-login-btn">Login</a></li>
-        </ul>
+            </ul>
     </nav>
 
     <!-- ═══════════════ HERO ═══════════════ -->
@@ -264,20 +257,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const loginBtn = document.querySelector('.nav-login-btn');
-            if (loginBtn && (localStorage.getItem('bhaala_logged_in') || sessionStorage.getItem('bhaala_logged_in'))) {
-                loginBtn.textContent = 'Logout';
-                loginBtn.href = '#';
-                loginBtn.addEventListener('click', e => {
-                    e.preventDefault();
-                    localStorage.removeItem('bhaala_logged_in');
-                    localStorage.removeItem('bhaala_user');
-                    sessionStorage.removeItem('bhaala_logged_in');
-                    sessionStorage.removeItem('bhaala_user');
-                    window.location.replace('login.html');
-                });
-            }
-        });
+            );
     </script>
     <script src="mobile-nav.js"></script>
 </body>
