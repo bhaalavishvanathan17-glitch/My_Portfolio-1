@@ -1,0 +1,124 @@
+Create a full-stack web application called *MindPulse – AI Mental Wellness Tracker*.
+
+Goal:
+The application should detect the user's mood using two input methods:
+
+1. Text-based sentiment analysis
+2. Facial emotion detection using the webcam
+
+Technology Stack:
+
+* Python
+* Flask (backend framework)
+* HTML, CSS, Bootstrap (frontend)
+* SQLite database
+* Chart.js for dashboard analytics
+* TextBlob for sentiment analysis
+* OpenCV and DeepFace for facial emotion detection
+
+Project Structure:
+
+mindpulse/
+│
+├── app
+├── database.db
+├── requirements.txt
+│
+├── templates/
+│   ├── index.html
+│   ├── result.html
+│   └── dashboard.html
+│
+└── static/
+└── style.css
+
+Functional Requirements:
+
+1. Home Page (index.html)
+
+* Title: "MindPulse – AI Mental Wellness Tracker"
+* Two options for mood detection:
+
+  * "Analyze Mood from Text"
+  * "Detect Emotion from Face"
+* A text area where users can write how they feel
+* Button: "Analyze Mood"
+* Button: "Scan Face"
+* Link to view dashboard
+
+2. Text Mood Detection
+
+* When the user submits text, the backend should analyze the sentiment using TextBlob.
+* Classify the mood into:
+  Positive
+  Neutral
+  Negative
+* Display the result on the result page.
+* Save the mood entry in the SQLite database.
+
+3. Facial Emotion Detection
+
+* When the user clicks "Scan Face", the webcam should activate.
+* Capture the user's face using OpenCV.
+* Use DeepFace to detect emotion.
+* Possible emotions:
+  happy
+  sad
+  angry
+  neutral
+  surprise
+  fear
+* Display the detected emotion on the result page.
+* Save the emotion in the database.
+
+4. Database
+   Use SQLite to store mood entries.
+
+Create a table called moods with the following columns:
+
+* id (primary key)
+* input_type (text or face)
+* emotion
+* date_time
+
+5. Dashboard Page
+   Create a dashboard that shows mood statistics using Chart.js.
+   Display a chart showing counts of:
+
+* positive
+* neutral
+* negative
+* happy
+* sad
+* angry
+
+6. Backend (Flask)
+
+* Create routes for:
+  /
+  /analyze_text
+  /scan_face
+  /dashboard
+* Connect frontend forms to backend routes.
+
+7. UI Design
+
+* Use Bootstrap to create a modern clean interface.
+* Purple and blue gradient theme.
+* Mobile responsive layout.
+* Clear buttons and sections.
+
+8. requirements.txt
+   Include required libraries:
+   flask
+   textblob
+   opencv-python
+   deepface
+   sqlite3
+
+9. The application should run with:
+   python app.py
+
+10. Add comments in the code explaining the purpose of each section so the system is easy to understand.
+
+The final output should be a working Flask web application where users can detect their mood either by entering text or scanning their face, store the results in a database, and view mood analytics on a dashboard

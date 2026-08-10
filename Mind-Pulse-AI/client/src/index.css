@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: 'Outfit', sans-serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+
+    /* Deep Space Purple/Blue Theme */
+    --background: 230 40% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 230 40% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 230 40% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 260 83% 65%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 100% 55%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 230 40% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 280 80% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 230 30% 20%;
+    --input: 230 30% 20%;
+    --ring: 260 83% 65%;
+
+    --radius: 1rem;
+    
+    /* Chart Colors - Vibrant Neons */
+    --chart-1: 260 83% 65%; /* Purple */
+    --chart-2: 210 100% 55%; /* Blue */
+    --chart-3: 320 80% 60%; /* Pink */
+    --chart-4: 160 80% 50%; /* Teal */
+    --chart-5: 45 90% 55%;  /* Orange/Gold */
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased min-h-screen relative;
+    font-family: var(--font-sans);
+  }
+
+  /* Stunning gradient mesh background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: 
+      radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 50% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-fuchsia-400 to-blue-400;
+  }
+
+  .btn-primary {
+    @apply relative overflow-hidden bg-gradient-to-r from-primary to-secondary text-white font-semibold 
+           rounded-xl px-6 py-3 shadow-[0_0_20px_rgba(139,92,246,0.3)] 
+           hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] hover:-translate-y-0.5 
+           active:translate-y-0 active:scale-95 transition-all duration-300
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+  
+  .btn-primary::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 
+           -translate-x-full hover:translate-x-full transition-transform duration-700 ease-in-out;
+  }
+}
+
+/* Custom Scanner Animation */
+@keyframes scan {
+  0% { top: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.scanner-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), transparent);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.8), 0 0 40px rgba(56, 189, 248, 0.4);
+  animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  z-index: 20;
+}
